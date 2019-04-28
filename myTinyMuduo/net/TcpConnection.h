@@ -60,12 +60,12 @@ namespace muduo{
             void stopRead();
             bool isReading()const{return reading_;}
 
-            void setContext(const boost::any& context){
-                context_ = context;
-            }
-            const boost::any& getMutableContex(){
-                return &context_;
-            }
+//            void setContext(const boost::any& context){
+//                context_ = context;
+//            }
+//            const boost::any& getMutableContex(){
+//                return &context_;
+//            }
 
             //5个可供用户设置的回调函数
             //连接建立/断开后调用cb
@@ -138,7 +138,7 @@ namespace muduo{
             size_t  highWaterMark_;
             Buffer  inputBuffer_;
             Buffer  outputBuffer_;
-            boost::any context_;
+//            boost::any context_;
         };
         typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
     }

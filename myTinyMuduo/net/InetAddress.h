@@ -21,7 +21,7 @@ namespace muduo{
 
             //给定端口号构造节点，主要用在TcpServer listening
             explicit InetAddress(uint16_t port = 0,bool loopbackOnly = false, bool ipv6 = false);
-            //给定IP构造节点“1.2.3.4”
+            //给定IP和端口构造节点“1.2.3.4：5678”
             InetAddress(StringArg ip,uint16_t port, bool ipv6 = false);
             //给定sockaddr_in构造节点
             explicit InetAddress(const struct sockaddr_in& addr)

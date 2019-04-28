@@ -17,7 +17,7 @@ using namespace muduo;
 using namespace muduo::net;
 
 //默认建立/断开连接时的回调函数
-void defaultConnectionCallback(const TcpConnectionPtr &conn) {
+void muduo::net::defaultConnectionCallback(const TcpConnectionPtr &conn) {
 
     LOG_TRACE<<conn->localAddress().toIpPort()<<"->"
              <<conn->peerAddress().toIpPort()<<" is "
@@ -25,8 +25,8 @@ void defaultConnectionCallback(const TcpConnectionPtr &conn) {
                                                                        //若为kDisConnectted：“down”
 }
 
-//默认接收数据回调函数，忽略读到的数据？？
-void defaultMessageCallback(const TcpConnectionPtr &conn, Buffer *buffer, Timestamp receiveTime) {
+//默认接收数据回调函数，忽略读到的数据
+void muduo::net::defaultMessageCallback(const TcpConnectionPtr &conn, Buffer *buffer, Timestamp receiveTime) {
     buffer->retrieveAll();
 }
 
