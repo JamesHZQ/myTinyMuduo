@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(my_tinymuduo_base)
+set(CMAKE_CXX_FLAGS "-g -Wall")
 set(CMAKE_CXX_STANDARD 14)
 include_directories(../)
 set(base_SRCS
