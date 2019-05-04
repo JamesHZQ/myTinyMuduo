@@ -11,14 +11,15 @@
 #include "base/Types.h"
 
 namespace muduo{
-    //可以接受c-string(注意结尾的'\0'，有的系统函数需要这个标志判断字符串结束)和string
+    //可以接受c-string和string
+    //得到c-string
     class StringArg{
     public:
         StringArg(const char* str)
             : str_(str)
         {}
         StringArg(const string& str)
-            : str_(str.c_str())
+            : str_(str.c_str()) //末尾自动添加'\0'
         {}
         const char* c_str()const{
             return str_;
@@ -27,9 +28,10 @@ namespace muduo{
         const char* str_;
     };
     //让c-string可以像string那样使用
+    //有length_属性，末尾可以，没有'\0'
     class StringPiece{
     private:
-        const char* ptr_;       //字符串首地址字节长度
+        const char* ptr_;       //字符串首地址
         int         length_;    //字符串长度
     public:
         //空串
@@ -118,7 +120,7 @@ namespace muduo{
 
 
     };
-//StringPiece对象写入日志
+//StringPiece对象写入输出流
 std::ostream& operator<<(std::ostream& o,const muduo::StringPiece* piece);
 }
 

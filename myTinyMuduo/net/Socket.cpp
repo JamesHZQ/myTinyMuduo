@@ -86,6 +86,10 @@ void Socket::setReusePort(bool on) {
 #ifdef  SO_REUSEPORT
     int optval = on?1:0;
     int ret = ::setsockopt(sockfd_,SOL_SOCKET,SO_REUSEPORT,&optval, static_cast<socklen_t >(sizeof(optval)));
+    if (ret < 0 && on)
+    {
+        LOG_SYSERR << "SO_REUSEPORT failed.";
+    }
 #else
     if(on){
         LOG_ERRPR<<"SO_REUSEPORT is not supported.";

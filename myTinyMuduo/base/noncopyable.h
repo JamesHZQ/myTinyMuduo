@@ -5,6 +5,8 @@
 #ifndef MY_TINYMUDUO_BASE_NONCOPYABLE_H
 #define MY_TINYMUDUO_BASE_NONCOPYABLE_H
 
+//其他类可以通过继承这个类，删除自生的拷贝和赋值函数
+//从而禁止该类的copy行为
 namespace muduo{
     class noncopyable{
     public:

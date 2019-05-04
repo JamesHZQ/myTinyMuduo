@@ -57,8 +57,7 @@ void Channel::remove() {
 //处理事件
 void Channel::handleEvent(Timestamp receiveTime) {
     std::shared_ptr<void> guard;
-    if(tied_)
-    {
+    if(tied_){
         //若weak_ptr弱绑定的对象此刻存活，将其提升为shared_ptr强绑定
         //确保在handleEvent中，被绑定的对象不会被销毁
         guard = tie_.lock();

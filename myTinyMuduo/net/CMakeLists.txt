@@ -21,7 +21,9 @@ set(net_SRCS
         EventLoopThread.cpp
         EventLoopThreadPool.cpp
         TcpServer.cpp
-        TcpClient.cpp)
+        TcpClient.cpp
+        poller/EPollPoller.cpp
+        )
 add_library(muduo_net ${net_SRCS})
 
 target_link_libraries(muduo_net ../base/muduo_base)

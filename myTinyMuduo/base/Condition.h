@@ -35,7 +35,7 @@ namespace muduo{
             MCHECK(pthread_cond_broadcast(&pcond_));
         }
     private:
-        //MutexLockGuard不可复制
+        //MutexLock不可复制
         MutexLock &mutex_;
         pthread_cond_t pcond_;
     };

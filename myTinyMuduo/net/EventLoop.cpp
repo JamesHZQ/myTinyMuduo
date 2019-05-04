@@ -52,7 +52,8 @@ IgnoreSigPipe initObj;
 
 }  // namespace
 
-//返回本线程持有的EventLoop对象的指针
+//这是一个类静态函数，不属于某个类的对象，若线程中创建了EventLoop对象，该函数返回其地址，
+//若没有创建EventLoop对象，该函数返回NULL。该函数可用于判断当前线程是否是IO线程（有没有EventLoop对象）
 EventLoop* EventLoop::getEventLoopOfCurrentThread()
 {
     return t_loopInThisThread;
@@ -73,15 +74,16 @@ EventLoop::EventLoop()
 {
     LOG_DEBUG<<"EventLoop created "<< this <<" in thread "<<threadId_;
     //线程特定数据t_loopInThisThread不为0，
-    //表示已经有其它EventLoop对象在这个线程里初始化
-    //而一个线程至多只能有一个事件循环
+    //表示已经有其它EventLoop对象在这个线程里初始化，而一个线程至多只能有一个事件循环
+    //所以t_loopInThisThread不为0时中止程序，否则初始化t_loopInThisThread，
+    //为当前EventLoop对象的地址
     if(t_loopInThisThread){
         LOG_SYSFATAL<<"Another EventLoop "<<t_loopInThisThread<<" exists in this thread "<<threadId_;
     }else{
         t_loopInThisThread = this;
     }
-    //设置wakeupChannel_回调函数，在往wakeupFd_写入数据后，出发wakeupFd_的读事件
-    //wakeupChannel_会调用EventLoop::handleRead处理
+    //设置wakeupChannel_回调函数，在往wakeupFd_写入数据后，触发wakeupFd_的读事件
+    //wakeupChannel_会调用读事件处理函数
     wakeupChannel_->setReadCallback(std::bind(&EventLoop::handleRead, this));
     //打开对读事件监听的同时，也会更新poll描述符集，添加wakeupFd_及wakeupChannel_
     wakeupChannel_->enableReading();
@@ -90,13 +92,15 @@ EventLoop::EventLoop()
 EventLoop::~EventLoop() {
     LOG_DEBUG<<"EventLoop "<<this<<" of thread "<<threadId_
             <<" destructs in thread "<< CurrentThread::tid();
+    //清理wakeup相关的资源
     wakeupChannel_->disableAll();
     wakeupChannel_->remove();
     ::close(wakeupFd_);
-    t_loopInThisThread = NULL;
+    t_loopInThisThread = NULL;      //本IO线程变为普通线程
 }
 void EventLoop::loop(){
     assert(!looping_);
+    //只能在EventLoop所属线程调用
     assertInLoopThread();
     looping_ = true;
     quit_ = false;
@@ -126,9 +130,11 @@ void EventLoop::loop(){
     looping_ = false;
 }
 void EventLoop::quit() {
-    //主要供其他线程调用，quit_原子量
+    //在本EventLoop所属线程调用时，不必wakeup（quit_原子量），
+    //本EventLoop所属线程调用quit()说明没有阻塞在poll()
     quit_ = true;
-    //wakeup让poll调用停止阻塞（不再接受quit之后到来的事件）
+    //其他线程调用本线程的EventLoop对象的quit()时，
+    // 要用wakeup让本线程不再阻塞在poll调用，可以更加迅速的响应退出事件循环
     if(!isInloopThread()){
         wakeup();
     }
@@ -136,10 +142,10 @@ void EventLoop::quit() {
 
 void EventLoop::runInLoop(Functor cb) {
     if(isInloopThread()){
-        //如果是拥有该EventLoop对象的线程调用，直接调用Functor
+        //如果是本EventLoop所属线程调用（一般是事件处理，任务处理），直接调用Functor
         cb();
     }else{
-        //如果是其它的线程调用，则让cb排队等待执行
+        //如果是其它的线程调用，为避免竞争将任务传给EventLoop所属对象，等待执行
         queueInLoop(std::move(cb));
     }
 }
@@ -153,6 +159,9 @@ void EventLoop::queueInLoop(Functor cb) {
         pendingFunctors_.push_back(std::move(cb));
     }
 
+    //其它线程为了能尽快让任务执行，需要调用本EventLoop的wakeup，让本EventLoop不会阻塞在poll调用
+    //另外，如果本线程调用queueInLoop，本EventLoop正在执行，此时添加的任务是不会在执行的，需要等下个循环
+    //同样面临阻塞在poll的问题，所以也要调用wakeup
     if(!isInloopThread()||callingPendingFunctors_){
         wakeup();
     }
@@ -193,6 +202,7 @@ void EventLoop::updateChannel(Channel *channel) {
 void EventLoop::removeChannel(Channel *channel) {
     assert(channel->owerLoop() == this);
     assertInLoopThread();
+    //要删除的channel如果在activeChannels_里，只能删除正在处理的currentActiveChannel_
     if(eventHandling_){
         assert(currentActiveChannel_ == channel ||
         std::find(activeChannels_.begin(),activeChannels_.end(),channel)==activeChannels_.end());

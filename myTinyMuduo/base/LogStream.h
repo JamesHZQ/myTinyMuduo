@@ -16,6 +16,7 @@ namespace muduo{
     namespace detail{
         const int kSmallBuffer = 4000;
         const int kLargeBuffer = 4000*1000;
+        //FixedBuffer末尾没有'\0'中止符
         template <int SIZE>
         class FixedBuffer:noncopyable{
         public:
@@ -130,9 +131,11 @@ namespace muduo{
         void staticCheck();
         template <typename T>
         void formatInteger(T);
+        //容量4000个字节
         Buffer buffer_;
         static const int kMaxNumericSize = 32;
     };
+    //数字转字符串
     class Fmt{
     public:
         template<typename T>
@@ -141,9 +144,10 @@ namespace muduo{
         const char* data()const{return buf_;}
         int length()const{return length_;}
     private:
-        char buf_[32];
-        int length_;
+        char    buf_[32];
+        int     length_;
     };
+    //将Fmt对象写到LogStream（添加到LogStream的buffer_）
     inline LogStream& operator<<(LogStream&s,const Fmt&fmt){
         s.append(fmt.data(),fmt.length());
         return s;

@@ -36,6 +36,8 @@ namespace muduo{
         };
         //程序一开始就要执行muduo::CurrentThread::t_threadName = "main";CurrentThread::tid();
         ThreadNameInitializer init;
+
+
         struct ThreadData{
             typedef muduo::Thread::ThreadFunc ThreadFunc;
             ThreadFunc      func_;
@@ -77,6 +79,7 @@ namespace muduo{
                 }
             }
         };
+
         void* startThread(void* obj){
             ThreadData* data = static_cast<ThreadData*>(obj);
             data->runInThread();
@@ -87,9 +90,9 @@ namespace muduo{
 
     void CurrentThread::cacheTid() {
         if(t_cachedTid==0){
-            //调用gettid()，将得到的本线程的tid存到线程特定数据t_cachedTid
+            //调用gettid()，将得到的本线程的tid赋给线程特定数据t_cachedTid
             t_cachedTid = detail::gettid();
-            //格式化tid存到t_tidStringLength
+            //格式化tid，结果存到t_tidString，长度t_tidStringLength
             t_tidStringLength = snprintf(t_tidString,sizeof(t_tidString),"%5d",t_cachedTid);
         }
     }
@@ -107,7 +110,7 @@ namespace muduo{
         ::nanosleep(&ts, NULL);
     }
 
-    //提前初始化静态变量
+    //初始化静态成员
     AtomicInt32 Thread::numCreated_;
 
 
@@ -125,7 +128,7 @@ namespace muduo{
     }
     Thread::~Thread() {
         if(started_ && !joined_){
-            //如果开启的进程还没有结束
+            //如果开启的进程还没有结束（还没join）
             //将开起的线程分离
             pthread_detach(pthreadId_);
         }
@@ -144,15 +147,17 @@ namespace muduo{
     void Thread::start() {
         assert(!started_);
         started_ = true;
+        //ThreadData匿名对象在堆中，注意清理
         detail::ThreadData* data = new detail::ThreadData(func_,name_,&tid_,&latch_);
         if(pthread_create(&pthreadId_,NULL,&detail::startThread,data))
         {
             //pthread_create返回值不等于0表示线程创建失败
             started_ = false;
+            //调用detail::startThread失败，需要在这里释放detail::ThreadData占有的空间
             delete data;
             LOG_SYSFATAL<<"Failed in pthread_create";
         }else{
-            //？？
+            //确保tid已正确设置
             latch_.wait();
             assert(tid_>0);
         }

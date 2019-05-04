@@ -23,16 +23,17 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &listenAddr, bool reusepor
       //创建1个属于当前事件循环（当前线程）的Channel对象，并将该Channel对象与监听套接字建立对应关系
       acceptChannel_(loop,acceptSocket_.fd()),
       listenning_(false),
-      //打开一个空fd用于占位
+      //打开一个空fd用于占位，程序结束时会自动关闭
       idleFd_(::open("/dev/null",O_RDONLY|O_CLOEXEC))
 {
     assert(idleFd_ >= 0);
-    //设置监听套接字，复用地址和端口
+    //默认允许重用本地地址
     acceptSocket_.setReuseAddr(true);
+    //设置是否允许端口复用
     acceptSocket_.setReusePort(reuseport);
-    //绑定地址和端口
+    //套接字绑定地址和端口
     acceptSocket_.bindAddress(listenAddr);
-
+    //设置监听套接字读事件回调函数，Acceptor对象析构时会取消对所有事件的监听，并移除相应channel
     acceptChannel_.setReadCallback(std::bind(&Acceptor::handleRead,this));
 
 }
@@ -65,8 +66,7 @@ void Acceptor::handleRead(){
     //若已建立TCP连接，connfd为已连接套接字
     if(connfd >= 0){
         if(newConnectionCallback_){
-            //调用建立连接回调函数处理已连接套接字（需要使用对端地址）
-            //将TCP连接分给其他线程的EventLoop处理
+            //调用建立连接回调函数处理已连接套接字（并传递对端地址）
             newConnectionCallback_(connfd,peerAddr);
         }else{
             sockets::close(connfd);

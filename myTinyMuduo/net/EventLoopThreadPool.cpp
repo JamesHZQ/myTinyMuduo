@@ -34,11 +34,11 @@ void EventLoopThreadPool::start(const ThreadInitCallback &cb) {
     for(int i=0;i<numThreads_;++i){
         char buf[name_.size()+32];
         snprintf(buf, sizeof(buf),"%s%d",name_.c_str(),i);
-        EventLoopThread* t = new EventLoopThread(cb,buf);
-        threads_.push_back(std::unique_ptr<EventLoopThread>(t));
         //每个EventLoopThread(在堆上，通过unique_ptr管理)对象，
         //会创建一个新线程，并在新线程的栈上创建EventLoop对象，
-        //并会开启事件循环
+        EventLoopThread* t = new EventLoopThread(cb,buf);
+        threads_.push_back(std::unique_ptr<EventLoopThread>(t));
+        //开启事件循环，并得到EventLoop对象的指针
         loops_.push_back(t->startLoop());
     }
     if(numThreads_ == 0 && cb){

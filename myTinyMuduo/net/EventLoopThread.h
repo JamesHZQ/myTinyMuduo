@@ -12,7 +12,7 @@
 namespace muduo{
     namespace net{
         class EventLoop;
-        //用于开启一个线程执行时间循环
+        //EventLoopThread对象创建时，创建一个新线程并在其中创建EventLoop对象
         class EventLoopThread:noncopyable{
         public:
             typedef std::function<void(EventLoop*)> ThreadInitCallback;

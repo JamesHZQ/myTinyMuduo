@@ -43,7 +43,7 @@ EventLoop* EventLoopThread::startLoop() {
 }
 
 void EventLoopThread::threadFunc() {
-    //EvevntLoop是新开启的线程的栈变量
+    //EvevntLoop对象（loop）是新开启的线程的栈变量
     //那个线程结束后EventLoop对象自动销毁
     EventLoop loop;
     if(callback_){
@@ -51,9 +51,9 @@ void EventLoopThread::threadFunc() {
     }
     //通知主线程EventLoop对象已经创建好了
     //主线程收到通知后立即锁住mutex_,记录EventLoop对象的地址
-    //这样是为了避免loop。loop()在很短的时间就执行完
-    //那个时候开启的线程的EventLoop栈对象，已经销毁
-    //后面的主线程也自动把loop_变为NULL
+    //这样是为了避免loop.loop()在很短的时间就退出了
+    //那个时候新线程的EventLoop栈对象，已经销毁
+    //
     {
         MutexLockGuard lock(mutex_);
         loop_ = &loop;

@@ -27,14 +27,11 @@ namespace muduo{
             assert(holder_==0);
             MCHECK(pthread_mutex_destroy(&mutex_));
         }
-
-
-        //在线程锁住互斥量前，要调用isLockedByThisThread（assert）
-        //调用线程是否已是互斥量的持有者，以免同一线程对同一互斥量再次加锁
+        //判断当前线程是否锁住互斥量
         bool isLockedByThisThread()const{
             return holder_==CurrentThread::tid();
         }
-        //见上
+
         void assertLocked()const{
             assert(isLockedByThisThread());
         }

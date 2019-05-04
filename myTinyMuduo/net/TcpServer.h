@@ -43,10 +43,9 @@ namespace muduo{
 
             void start();
 
+            //设置三个回调函数：连接建立或断开、收到消息、发送消息完成
             void setConnectionCallback(const ConnectionCallback& cb){ connectionCallback_ = cb; }
-
             void setMessageCallback(const MessageCallback& cb){ messageCallback_ = cb;}
-
             void setWriteCompleteCallback(const WriteCompleteCallback& cb){ writeCompleteCallback_ = cb;}
 
         private:
@@ -56,9 +55,9 @@ namespace muduo{
 
             typedef std::map<string, TcpConnectionPtr>ConnectionMap;
 
-            EventLoop*      loop_;
-            const string    ipPort_;
-            const string    name_;
+            EventLoop*                              loop_;
+            const string                            ipPort_;
+            const string                            name_;
             std::unique_ptr<Acceptor>               acceptor_;
             std::shared_ptr<EventLoopThreadPool>    threadPool_;
             ConnectionCallback                      connectionCallback_;

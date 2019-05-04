@@ -85,12 +85,10 @@ namespace muduo{
                 highWaterMarkCallback_ = cb;
                 highWaterMark_ = highWaterMark;
             }
-
             //连接关闭后调用cb
             void setCloseCallback(const CloseCallback& cb){
                 closeCallback_ = cb;
             }
-
 
             //分别返回TcpConnection内部的读/写缓冲区
             Buffer* inputBuffer(){
@@ -99,8 +97,6 @@ namespace muduo{
             Buffer* outputBuffer(){
                 return &outputBuffer_;
             }
-
-
 
             void connectEstablished();
             void connectDestroyed();

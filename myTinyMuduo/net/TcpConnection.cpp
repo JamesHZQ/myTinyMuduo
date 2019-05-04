@@ -82,27 +82,23 @@ void TcpConnection::send(const void *data, int len) {
 void TcpConnection::send(const StringPiece &message) {
     if(state_ == kConnected){
         if(loop_->isInloopThread()){
-            //在TcpConnection所在的事件循环(线程)中调用
-            //直接执行
+            //在TcpConnection所属的EventLoop所在的线程调用
             sendInLoop(message);
         }else{
-            //在其他事件循环（线程）调用
-            //定义函数指针fp指向sendInLoop成员函数(函数重载显示定义函数指针)
+            //若被其他线程调用，定义函数指针fp指向sendInLoop成员函数(函数重载显式定义函数指针)
             void (TcpConnection::*fp)(const StringPiece& message) = &TcpConnection::sendInLoop;
-            //放入任务队列等待执行
+            //放入本EventLoop的任务队列等待执行
             loop_->runInLoop(std::bind(fp,this,message.as_string()));
         }
     }
 }
-
+//类似于send(const StringPiece&)
 void TcpConnection::send(Buffer *buf) {
     if(state_ == kConnected){
         if(loop_->isInloopThread()){
             sendInLoop(buf->peek(),buf->readableBytes());
-            //发送缓冲区所有数据发送出去后，清空发送缓存区
             buf->retrieveAll();
         }else{
-            //跨线程调用要等待执行
             void (TcpConnection::*fp)(const StringPiece& message) = &TcpConnection::sendInLoop;
             loop_->runInLoop(std::bind(fp,this,buf->retrieveAllAsString()));
         }
@@ -123,19 +119,20 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
         LOG_WARN << "disconnected, give up writing";
         return;
     }
-    //如果缓冲区内没有数据，直接向fd写入数据
+    //如果TcpConnection写缓冲区内没有数据，直接将数据写入套接字（写入系统缓冲区）
     if(!channel_->isWriting()&&outputBuffer_.readableBytes() == 0){
         nwrote = sockets::write(channel_->fd(),data,len);
         if(nwrote >= 0){
             remaining = len - nwrote;
             //如果数据一次发完了，将发送完成回调函数放到任务队列中等待执行（现在执行？）
-            //writeCompleteCallback_包含本TcpConnection对象的shared_ptr指针，这会延长其存活时间
+            //writeCompleteCallback_包含本TcpConnection对象的shared_ptr指针，这会延长其生命期
             if(remaining == 0 && writeCompleteCallback_){
                 loop_->queueInLoop(std::bind(writeCompleteCallback_,shared_from_this()));
             }
         }else{
             //write出错令nwrote = 0，表示一个也没写到fd
             nwrote = 0;
+            //EWOULDBLOCK表示系统缓冲区满（非阻塞）
             if(errno != EWOULDBLOCK){
                 LOG_SYSERR<<"TcpConnection::sendInLoop";
                 if(errno == EPIPE || errno == ECONNRESET){
@@ -150,11 +147,11 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
         //发送缓冲区还有多少数据要发
         size_t oldLen = outputBuffer_.readableBytes();
         //如果缓存中待写的数据过多，达到高水位标记,并且缓冲里原来的数据在高水位以下
-        //highWaterMarkCallback_存在，将其放入事件循环的任务队列中等待执行
+        //highWaterMarkCallback_存在，将其放入任务队列中等待执行
         if(oldLen +remaining >= highWaterMark_ && oldLen < highWaterMark_ && highWaterMarkCallback_){
             loop_->queueInLoop(std::bind(highWaterMarkCallback_,shared_from_this(),oldLen+remaining));
         }
-        //将还未写入的数据添加到缓冲里
+        //将还未写入的数据添加到TcpConnection写缓冲里
         outputBuffer_.append(static_cast<const char*>(data)+nwrote,remaining);
         //开启Channel对象对写事件的监听
         if(!channel_->isWriting()){
@@ -181,6 +178,7 @@ void TcpConnection::shutdownInLoop() {
         socket_->shutdownWrite();
     }
 }
+
 
 void TcpConnection::forceClose() {
     if(state_ == kConnected||state_ == kDisconnecting){
@@ -259,8 +257,9 @@ void TcpConnection::connectEstablished(){
     assert(state_ == kConnecting);
     setState(kConnected);
     //让channel里弱指针成员指向该TcpConnction对象，则channel可以测试
-    // TcpConnection对象是否还存活
+    // TcpConnection对象是否还存活，也可以延长TcpConnection的生命期
     channel_->tie(shared_from_this());
+
     channel_->enableReading();
     //调用建立连接回调函数
     connetionCallback_(shared_from_this());
@@ -271,7 +270,6 @@ void TcpConnection::connectDestroyed() {
     if(state_ == kConnected){
         setState(kDisconnected);
         channel_->disableAll();
-
         connetionCallback_(shared_from_this());
     }
     channel_->remove();
@@ -286,7 +284,7 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
         //接收到了数据，调用messageCallback_进行数据处理
         messageCallback_(shared_from_this(),&inputBuffer_,receiveTime);
     }else if(n == 0){
-        //接收到0个数据表明对端以关闭连接
+        //对shut_down的响应接收到0个数据表明对端以关闭连接
         handleClose();
     }else{
         errno = savedErrno;
@@ -303,7 +301,7 @@ void TcpConnection::handleWrite(){
 
         if(n>0){
             outputBuffer_.retrieve(n);
-            //如果一次发完（肯定能发完？）
+            //如果一次发完（发多少算多少，未发的数据留在TcpConnection的写缓冲区，等待下次可写事件）
             if(outputBuffer_.readableBytes() == 0){
                 //关闭channel对写事件的监听
                 channel_->disableWriting();

@@ -29,7 +29,7 @@ namespace muduo{
             void handleRead();
 
             EventLoop*  loop_;
-            Socket      acceptSocket_;
+            Socket      acceptSocket_;  //Acceptor持用监听套接字的Socket对象
             Channel     acceptChannel_;
             NewConnectionCallback newConnectionCallback_;
             bool        listenning_;

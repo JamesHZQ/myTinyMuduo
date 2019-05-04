@@ -86,6 +86,7 @@ void TcpClient::stop()
 
 void TcpClient::newConnection(int sockfd) {
     loop_->assertInLoopThread();
+    //构造TcpConneciton
     InetAddress peerAddr(sockets::getPeerAddr(sockfd));
     char buf[32];
     snprintf(buf,sizeof(buf),":%s#%d",peerAddr.toIpPort().c_str(),nextConnId_);

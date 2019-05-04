@@ -121,6 +121,7 @@ int sockets::accept(int sockfd, struct sockaddr_in6 *addr) {
                 break;
         }
     }
+    return connfd;
 }
 
 int sockets::connect(int sockfd, const struct sockaddr *addr) {

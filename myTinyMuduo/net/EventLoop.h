@@ -30,33 +30,31 @@ namespace muduo{
             EventLoop();
             ~EventLoop();
 
-
             void loop();
-
-
             void quit();
 
-            Timestamp pollReturnTime()const{return pollReturnTime_;}
-            int64_t iteration()const {return iteration_;}
+            Timestamp pollReturnTime()const{ return pollReturnTime_;}
+            int64_t iteration()const { return iteration_;}
 
+            //任务队列（线程切换）
             void runInLoop(Functor cb);
             void queueInLoop(Functor cb);
-
             size_t queueSize()const;
 
+            //定时器
             TimerId runAt(Timestamp timer, TimerCallback cb);
-
             TimerId runAfter(double delay, TimerCallback cb);
-
             TimerId runEvery(double interval,TimerCallback cb);
-
             void cancel(TimerId timerId);
+
+            //事件处理
             void wakeup();
             void updateChannel(Channel* channel);
             void removeChannel(Channel* channel);
             bool hasChannel(Channel* channel);
 
-            bool isInloopThread()const{return threadId_==CurrentThread::tid();}
+            //判断当前线程是否是本事件循环所属的线程（一个线程至多拥有一个事件循环EventLoop）
+            bool isInloopThread()const{ return threadId_==CurrentThread::tid();}
             void assertInLoopThread(){
                 if(!isInloopThread()){
                     abortNotInloopThread();
@@ -68,6 +66,7 @@ namespace muduo{
             boost::any* getMutableContext(){return &contex_;}
 
             static EventLoop* getEventLoopOfCurrentThread();
+
         private:
             void abortNotInloopThread();
             void handleRead();
@@ -78,7 +77,7 @@ namespace muduo{
             typedef std::vector<Channel*>ChannelList;
 
             bool                        looping_;
-            std::atomic<bool>           quit_;              //
+            std::atomic<bool>           quit_;              //原子量
             bool                        eventHandling_;
             bool                        callingPendingFunctors_;
             int64_t                     iteration_;

@@ -32,8 +32,8 @@ void ThreadPool::start(int numThreads) {
         char id[32];
         snprintf(id,sizeof(id),"%d", i+1);
         //比push_back快，直接在vector内存区上构造
-        //不需要另外移动和复制，Thread对象建在堆上，由unique_ptr管理
-        // ThreadPool销毁时Thread也自动销毁
+        //不需要另外移动和复制,unique_ptr直接创建在threads_里，Thread对象建在堆上，由unique_ptr管理，
+        // ThreadPool销毁时Thread也自动销毁，ThreadPool析构前会处理所有Thread对象，这里this是可以的
         threads_.emplace_back(new muduo::Thread(std::bind(&ThreadPool::runInThread,this),name_+id));
         threads_[i]->start();
     }
@@ -46,8 +46,8 @@ void ThreadPool::stop() {
     {
         MutexLockGuard lock(mutex_);
         running_ = false;
-        //可以让其他线程，都检查到running_变为false了，
-        // 其它线程可以退出对条件变量的循环等待了（take()函数中）
+        //可以让其他线程，不再阻塞于take()，
+        //检查到running_变为false，可以退出了
         notEmpty_.notifyAll();
     }
     for(auto& thr : threads_){

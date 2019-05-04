@@ -77,7 +77,7 @@ namespace muduo
         return s;
     }
 
-    //默认讲输出信息写到标准输出
+    //默认将Log日志写到标准输出
     void defaultOutput(const char* msg, int len)
     {
         size_t n = fwrite(msg, 1, len, stdout);
@@ -91,7 +91,7 @@ namespace muduo
         fflush(stdout);
     }
 
-    //将输出和flush回调函数都设为默认函数，后面可通过setxxx修改
+    //将输出和flush回调函数都设为默认函数，可通过setxxx修改
     Logger::OutputFunc g_output = defaultOutput;
     Logger::FlushFunc g_flush = defaultFlush;
     TimeZone g_logTimeZone;
@@ -193,8 +193,10 @@ Logger::Logger(SourceFile file, int line, bool toAbort)
 
 Logger::~Logger()
 {
+    //添加结束字符
     impl_.finish();
     const LogStream::Buffer& buf(stream().buffer());
+    //日志打印到标准输出
     g_output(buf.data(), buf.length());
     //如果LogLevel==FATAL，flush后退出
     if (impl_.level_ == FATAL)

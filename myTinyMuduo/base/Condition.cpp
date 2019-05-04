@@ -18,5 +18,6 @@ bool muduo::Condition::waitForSeconds(double seconds) {
     abstime.tv_nsec = static_cast<long>((abstime.tv_nsec + nanoseconds) % kNanoSecondsPerSecond);
 
     MutexLock::UnassignGuard ug(mutex_);
+    //超时返回true
     return ETIMEDOUT == pthread_cond_timedwait(&pcond_,mutex_.getpthreadMutex(),&abstime);
 }

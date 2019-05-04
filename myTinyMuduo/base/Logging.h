@@ -28,13 +28,13 @@ namespace muduo{
                 : data_(arr),
                   size_(N-1)
             {
-                //如果传入目录，找到最后一个‘/’的位置
                 const char* slash = strrchr(data_,'/');
                 if(slash){
                     data_ = slash+1;
                     size_ -= static_cast<int>(data_ - arr);
                 }
             }
+            //提取文件名
             explicit SourceFile(const char* filename)
                 : data_(filename)
             {
