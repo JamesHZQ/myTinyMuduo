@@ -31,7 +31,7 @@ namespace muduo{
                 //注册回调函数
                 //在当前线程使用fork后，会调用afterFork
                 //应该是用不到，不需要fork
-                pthread_atfork(NULL,NULL,&afterFork);CurrentThread::tid();
+                pthread_atfork(NULL,NULL,&afterFork);
             }
         };
         //程序一开始就要执行muduo::CurrentThread::t_threadName = "main";CurrentThread::tid();
@@ -149,8 +149,7 @@ namespace muduo{
         started_ = true;
         //ThreadData匿名对象在堆中，注意清理
         detail::ThreadData* data = new detail::ThreadData(func_,name_,&tid_,&latch_);
-        if(pthread_create(&pthreadId_,NULL,&detail::startThread,data))
-        {
+        if(pthread_create(&pthreadId_,NULL,&detail::startThread,data)){
             //pthread_create返回值不等于0表示线程创建失败
             started_ = false;
             //调用detail::startThread失败，需要在这里释放detail::ThreadData占有的空间

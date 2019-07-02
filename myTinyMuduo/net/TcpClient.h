@@ -40,19 +40,19 @@ namespace muduo{
                 void newConnection(int sockfd);
                 void removeConnection(const TcpConnectionPtr& conn);
 
-                EventLoop* loop_;
-                ConnectorPtr connector_;
-                const string name_;
+                EventLoop*              loop_;
+                ConnectorPtr            connector_;
+                const string            name_;
 
-                ConnectionCallback connectionCallback_;
-                MessageCallback messageCallback_;
-                WriteCompleteCallback writeCompleteCallback_;
+                ConnectionCallback      connectionCallback_;
+                MessageCallback         messageCallback_;
+                WriteCompleteCallback   writeCompleteCallback_;
 
-                bool retry_;
-                bool connect_;
-                int nextConnId_;
-                mutable MutexLock mutex_;
-                TcpConnectionPtr connection_;
+                bool                    retry_;
+                bool                    connect_;
+                int                     nextConnId_;
+                mutable MutexLock       mutex_;
+                TcpConnectionPtr        connection_;
 
         };
     }

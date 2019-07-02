@@ -37,7 +37,7 @@ namespace muduo{
             void setErrorCallback(EventCallback cb)
             {errorCallback_ = std::move(cb);}
 
-            //绑定1个对象，阻止这个对象在handleEvent中被销毁
+            //绑定1个对象，确保这个对象在handleEvent一直存在
             //一般是tie一个TcpConnection对象
             void tie(const std::shared_ptr<void>& );
 
@@ -78,16 +78,16 @@ namespace muduo{
             void update();
             void handleEventWithGuard(Timestamp receiveTime);
 
-            static const int kNoneEvent;
-            static const int kReadEvent;
-            static const int kWriteEvent;
+            static const int    kNoneEvent;
+            static const int    kReadEvent;
+            static const int    kWriteEvent;
 
-            EventLoop*  loop_;
-            const int   fd_;
-            int         events_;
-            int         revents_;
-            int         index_;
-            bool        logHup_;
+            EventLoop*          loop_;
+            const int           fd_;
+            int                 events_;
+            int                 revents_;
+            int                 index_;
+            bool                logHup_;
 
             std::weak_ptr<void> tie_;
             bool                tied_;

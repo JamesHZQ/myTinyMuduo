@@ -121,8 +121,8 @@ void Connector::connecting(int sockfd) {
     setState(kConnecting);
     assert(!channel_);
     channel_.reset(new Channel(loop_,sockfd));
-    channel_->setWriteCallback(std::bind(&Connector::handleWrite,this));    //？？
-    channel_->setErrorCallback(std::bind(&Connector::handleError,this));    //？？
+    channel_->setWriteCallback(std::bind(&Connector::handleWrite,this));
+    channel_->setErrorCallback(std::bind(&Connector::handleError,this));
     //当套接字可写，说明连接建立成功
     channel_->enableWritting();
 }
@@ -137,7 +137,7 @@ int Connector::removeAndResetChannel() {
     channel_->remove();
     int sockfd = channel_->fd();
     //事件循环中不能直接移除channel（可能正处于handleEvent期）
-    loop_->queueInLoop(std::bind(&Connector::resetChannel,this));   //？？
+    loop_->queueInLoop(std::bind(&Connector::resetChannel,this));
     return sockfd;
 }
 

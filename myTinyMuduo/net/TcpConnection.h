@@ -117,23 +117,23 @@ namespace muduo{
             void startReadInLoop();
             void stopReadInLoop();
 
-            EventLoop*      loop_;
-            const string    name_;
-            StateE          state_;
-            bool            reading_;
+            EventLoop*                  loop_;
+            const string                name_;
+            StateE                      state_;
+            bool                        reading_;
             //TcpConnection对象拥有Socket和Channel
             std::unique_ptr<Socket>     socket_;
             std::unique_ptr<Channel>    channel_;
-            const InetAddress       localAddr_;
-            const InetAddress       peerAddr_;
-            ConnectionCallback      connetionCallback_;
-            MessageCallback         messageCallback_;
-            WriteCompleteCallback   writeCompleteCallback_;
-            HighWaterMarkCallback   highWaterMarkCallback_;
-            CloseCallback           closeCallback_;
-            size_t  highWaterMark_;
-            Buffer  inputBuffer_;
-            Buffer  outputBuffer_;
+            const InetAddress           localAddr_;
+            const InetAddress           peerAddr_;
+            ConnectionCallback          connetionCallback_;
+            MessageCallback             messageCallback_;
+            WriteCompleteCallback       writeCompleteCallback_;
+            HighWaterMarkCallback       highWaterMarkCallback_;
+            CloseCallback               closeCallback_;
+            size_t                      highWaterMark_;
+            Buffer                      inputBuffer_;
+            Buffer                      outputBuffer_;
 //            boost::any context_;
         };
         typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;

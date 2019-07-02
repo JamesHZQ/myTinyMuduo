@@ -51,13 +51,13 @@ namespace muduo{
             int removeAndResetChannel();
             void resetChannel();
 
-            EventLoop* loop_;
-            InetAddress serverAddr_;
-            bool connect_;
-            States state_;
-            std::unique_ptr<Channel> channel_;
-            NewConnectionCallback newConnectionCallback_;
-            int retryDelayMs_;
+            EventLoop*                  loop_;
+            InetAddress                 serverAddr_;
+            bool                        connect_;
+            States                      state_;
+            std::unique_ptr<Channel>    channel_;
+            NewConnectionCallback       newConnectionCallback_;
+            int                         retryDelayMs_;
         };
     }
 }

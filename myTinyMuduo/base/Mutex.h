@@ -57,7 +57,7 @@ namespace muduo{
         friend class Condition;
 
         //RAII：UnassignGuard构造时，解注册；析构时重新注册
-        //主要用在Condition：：wait，因为其直接使用系统函数解锁/加锁互斥量，没有注册/解注册的步骤
+        //主要用在Condition::wait，因为其直接使用系统函数解锁/加锁互斥量，没有注册/解注册的步骤
         class UnassignGuard:noncopyable{
         public:
             UnassignGuard(MutexLock& owner):owner_(owner){
