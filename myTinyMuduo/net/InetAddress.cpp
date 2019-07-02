@@ -84,13 +84,12 @@ InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6) {
 
 string InetAddress::toIpPort() const {
     char buf[64] = "";
-    //getSockAddr只返回IPV6地址？
     sockets::toIpPort(buf, sizeof(buf),getSockAddr());
     return buf;
 }
 uint32_t InetAddress::ipNetEndian() const {
     assert(family() == AF_INET);
-    //返回IPV4地址（二进制）
+    //返回IPV4地址（二进制整数）
     return addr_.sin_addr.s_addr;
 }
 

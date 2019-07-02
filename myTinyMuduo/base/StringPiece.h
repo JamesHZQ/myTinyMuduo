@@ -28,7 +28,6 @@ namespace muduo{
         const char* str_;
     };
     //让c-string可以像string那样使用
-    //有length_属性，末尾可以，没有'\0'
     class StringPiece{
     private:
         const char* ptr_;       //字符串首地址

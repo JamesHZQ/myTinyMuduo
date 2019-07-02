@@ -73,7 +73,7 @@ int sockets::creatNonblockingOrDie(sa_family_t family) {
 
     setNonBlockAndCloseOnExec(sockfd);
 #else
-    //创建套接字的同时设置套接字描述的属性（非阻塞+exec-关闭？）
+    //创建套接字的同时设置套接字描述的属性（TCP套接字+非阻塞+程序退出时自动关闭套接字）
     int sockfd = ::socket(family,SOCK_STREAM|SOCK_NONBLOCK|SOCK_CLOEXEC,IPPROTO_TCP);
     if(sockfd < 0){
         LOG_SYSFATAL<<"sockets::createNonblockingOrDie";

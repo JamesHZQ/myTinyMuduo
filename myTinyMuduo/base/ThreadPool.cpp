@@ -66,7 +66,7 @@ void ThreadPool::run(Task task){
         task();
     }else{
         MutexLockGuard lock(mutex_);
-        //等待往队列添加任务
+        //（条件变量）等待任务队列不满
         while(isFull()){
             notFull_.wait();
         }

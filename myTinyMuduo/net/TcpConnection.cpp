@@ -130,7 +130,7 @@ void TcpConnection::sendInLoop(const void *data, size_t len) {
                 loop_->queueInLoop(std::bind(writeCompleteCallback_,shared_from_this()));
             }
         }else{
-            //write出错令nwrote = 0，表示一个也没写到fd
+            //write出错，没有数据写到系统缓冲区，nwrote置0
             nwrote = 0;
             //EWOULDBLOCK表示系统缓冲区满（非阻塞）
             if(errno != EWOULDBLOCK){
