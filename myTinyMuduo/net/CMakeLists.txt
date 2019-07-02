@@ -3,6 +3,7 @@ project(my_tinymuduo_net)
 set(CMAKE_CXX_FLAGS "-g -Wall")
 set(CMAKE_CXX_STANDARD 14)
 include_directories(../)
+link_directories(../base)
 set(net_SRCS
         EventLoop.cpp
         Channel.cpp
@@ -26,4 +27,4 @@ set(net_SRCS
         )
 add_library(muduo_net ${net_SRCS})
 
-target_link_libraries(muduo_net ../base/muduo_base)
+target_link_libraries(muduo_net muduo_base)
