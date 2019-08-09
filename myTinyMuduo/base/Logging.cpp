@@ -112,6 +112,7 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
     CurrentThread::tid();
     //往LogStream里写入线程tid及其长度
     stream_ << T(CurrentThread::tidString(), CurrentThread::tidStringLength());
+    stream_ << "|";
     stream_ << T(LogLevelName[level], 6);
     if (savedErrno != 0)
     {
