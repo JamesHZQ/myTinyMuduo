@@ -38,6 +38,11 @@ static const in_addr_t kInaddrLoopback = INADDR_LOOPBACK;
 //         struct in6_addr sin6_addr;     /* IPv6 address */
 //         uint32_t        sin6_scope_id; /* IPv6 scope-id */
 //     };
+// struct sockaddr
+//   {
+//     __SOCKADDR_COMMON (sa_);	/* Common data: address family and length.  */
+//     char sa_data[14];		/* Address data.  */
+//   };
 using namespace muduo;
 using namespace muduo::net;
 
