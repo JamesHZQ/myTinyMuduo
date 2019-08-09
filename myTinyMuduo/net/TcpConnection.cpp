@@ -312,7 +312,7 @@ void TcpConnection::handleWrite(){
                 //发送完成检查一下状态，若连接关闭则关闭其写端
                 //因为在发送缓冲区还有数据等待发送时，不会调用shutdownWrite
                 //所以最后在把发送缓冲区的数据发送完后，再次调用shutdownInLoop()
-                if(state_ == kDisconnected){
+                if(state_ == kDisconnecting){
                     shutdownInLoop();
                 }
             }
