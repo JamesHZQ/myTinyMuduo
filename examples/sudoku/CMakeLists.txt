@@ -8,6 +8,8 @@ link_directories(../../myTinyMuduo/base)
 link_directories(../../myTinyMuduo/net)
 
 
-add_executable(sudoku server_basic.cpp sudoku.cpp)
+add_executable(sudoku1 server_basic.cpp sudoku.cpp)
+target_link_libraries(sudoku1  muduo_net muduo_base pthread)
 
-target_link_libraries(sudoku  muduo_net muduo_base pthread)
+add_executable(sudoku2 server_mutiloop.cpp sudoku.cpp)
+target_link_libraries(sudoku2  muduo_net muduo_base pthread)
