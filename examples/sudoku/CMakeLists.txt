@@ -13,3 +13,6 @@ target_link_libraries(sudoku1  muduo_net muduo_base pthread)
 
 add_executable(sudoku2 server_mutiloop.cpp sudoku.cpp)
 target_link_libraries(sudoku2  muduo_net muduo_base pthread)
+
+add_executable(sudoku3 server_threadpool.cpp sudoku.cpp)
+target_link_libraries(sudoku3  muduo_net muduo_base pthread)
