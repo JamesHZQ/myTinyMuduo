@@ -24,6 +24,9 @@ set(net_SRCS
         TcpServer.cpp
         TcpClient.cpp
         poller/EPollPoller.cpp
+        http/HttpContext.cpp
+        http/HttpRespose.cpp
+        http/HttpServer.cpp
         )
 add_library(muduo_net ${net_SRCS})
 
