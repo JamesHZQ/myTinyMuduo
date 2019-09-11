@@ -12,7 +12,7 @@
 #include "net/InetAddress.hpp"
 
 #include <memory>
-#include <boost/any.hpp>
+#include <any>
 #include <string>
 
 struct tcp_info;
@@ -60,13 +60,13 @@ namespace muduo{
             void stopRead();
             bool isReading()const{return reading_;}
 
-            void setContext(const boost::any& context){
+            void setContext(const std::any& context){
                 context_ = context;
             }
-            const boost::any& getContext()const{
+            const std::any& getContext()const{
                 return context_;
             }
-            boost::any* getMutableContex(){
+            std::any* getMutableContex(){
                 return &context_;
             }
 
@@ -137,7 +137,7 @@ namespace muduo{
             size_t                      highWaterMark_;
             Buffer                      inputBuffer_;
             Buffer                      outputBuffer_;
-            boost::any                  context_;
+            std::any                    context_;
         };
         typedef std::shared_ptr<TcpConnection> TcpConnectionPtr;
     }

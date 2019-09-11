@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(my_tinymuduo_net)
 set(CMAKE_CXX_FLAGS "-g -Wall")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 include_directories(../)
 link_directories(../base)
 set(net_SRCS

@@ -7,14 +7,11 @@
 
 #include "base/copyable.hpp"
 #include <string>
-#include <boost/operators.hpp>
 namespace muduo{
 //继承了boost库下的equality_comparable和less_than_comparable
 //可根据<和等于运算符自动生成>,>=,<=,!=
 //1970-01-01为时间戳的基准时间
-class Timestamp:public muduo::copyable,
-                public boost::equality_comparable<Timestamp>,
-                public boost::less_than_comparable<Timestamp>
+class Timestamp:public muduo::copyable
 {
 public:
     //构造1个非法的时间戳

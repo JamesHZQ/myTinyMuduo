@@ -5,6 +5,8 @@
 #include"net/http/HttpRequest.hpp"
 #include"net/http/HttpRespose.hpp"
 
+#include<any>
+
 using namespace muduo;
 using namespace muduo::net;
 
@@ -39,7 +41,7 @@ void HttpServer::onConnection(const TcpConnectionPtr& conn){
     }
 }
 void HttpServer::onMessage(const TcpConnectionPtr& conn,Buffer* buf,Timestamp receiveTime){
-    HttpContext* context = boost::any_cast<HttpContext>(conn->getMutableContex());
+    HttpContext* context = std::any_cast<HttpContext>(conn->getMutableContex());
     if(!context->parseRequest(buf,receiveTime)){
         conn->send("HTTP/1.1 400 Bad Request\r\n\r\n");
         conn->shutdown();

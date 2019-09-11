@@ -22,7 +22,6 @@ namespace {
     //线程特定数据
     //这个变量保存线程持有的EvenLoop对象的地址（一个线程至多持有一个EventLoop对象）
     __thread EventLoop* t_loopInThisThread = 0;
-
     const int kPollTimeMs = 10000;
 
     int createEventfd(){

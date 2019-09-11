@@ -14,8 +14,7 @@
 #include <atomic>
 #include <functional>
 #include <vector>
-
-#include <boost/any.hpp>
+#include <any>
 
 namespace muduo{
     namespace net{
@@ -61,9 +60,9 @@ namespace muduo{
                 }
             }
 
-            void setContex(const boost::any& context){contex_=context;}
-            const boost::any& getContext()const{return contex_;}
-            boost::any* getMutableContext(){return &contex_;}
+            void setContex(const std::any& context){contex_=context;}
+            const std::any& getContext()const{return contex_;}
+            std::any* getMutableContext(){return &contex_;}
 
             static EventLoop* getEventLoopOfCurrentThread();
 
@@ -88,11 +87,10 @@ namespace muduo{
             int                         wakeupFd_;
 
             std::unique_ptr<Channel>    wakeupChannel_;
-            boost::any                  contex_;
+            std::any                  contex_;
 
             ChannelList                 activeChannels_;    //***
             Channel*                    currentActiveChannel_;
-
             mutable MutexLock           mutex_;
             std::vector<Functor>        pendingFunctors_;   //***
 
