@@ -2,13 +2,13 @@
 // Created by john on 4/24/19.
 //
 
-#include "net/EventLoopThread.h"
-#include "net/EventLoop.h"
+#include "net/EventLoopThread.hpp"
+#include "net/EventLoop.hpp"
 
 using namespace muduo;
 using namespace muduo::net;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback &cb, const string &name)
+EventLoopThread::EventLoopThread(const ThreadInitCallback &cb, const std::string &name)
     : loop_(NULL),
       exiting_(false),
       thread_(std::bind(&EventLoopThread::threadFunc,this),name),

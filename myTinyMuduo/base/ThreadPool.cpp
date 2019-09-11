@@ -1,15 +1,13 @@
 //
 // Created by john on 4/17/19.
 //
-#include "base/ThreadPool.h"
-#include "base/Exception.h"
+#include "base/ThreadPool.hpp"
 
 #include <assert.h>
 #include <stdio.h>
-
 using namespace muduo;
 
-ThreadPool::ThreadPool(const string& nameArg)
+ThreadPool::ThreadPool(const std::string& nameArg)
     : mutex_(),
       notEmpty_(mutex_),
       notFull_(mutex_),
@@ -115,10 +113,6 @@ void ThreadPool::runInThread() {
                 task();
             }
         }
-    }catch (const Exception& ex){
-        fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
-        fprintf(stderr, "reason: %s\n", ex.what());
-        abort();
     }catch(const std::exception& ex){
         fprintf(stderr, "exception caught in ThreadPool %s\n", name_.c_str());
         fprintf(stderr, "reason: %s\n", ex.what());

@@ -1,10 +1,11 @@
-#ifndef MUDUO_NET_HTTP_HTTPRESPOSE_H
-#define MUDUO_NET_HTTP_HTTPRESPOSE_H
+#ifndef MUDUO_NET_HTTP_HTTPRESPOSE_HPP
+#define MUDUO_NET_HTTP_HTTPRESPOSE_HPP
 
-#include"base/Types.h"
-#include"base/Timestamp.h"
+#include"base/Timestamp.hpp"
 
+#include<string>
 #include<map>
+
 namespace muduo{
     namespace net{
         class Buffer;
@@ -21,7 +22,7 @@ namespace muduo{
                 void setStatusCode(HttpStatusCode code){
                     statusCode_ = code;
                 }
-                void setStatusMessage(const string& message){
+                void setStatusMessage(const std::string& message){
                     statusMessage_ = message;
                 }
                 void setCloseConnection(bool on){
@@ -30,22 +31,22 @@ namespace muduo{
                 bool closeConnection()const{
                     return closeConnection_;
                 }
-                void setContentType(const string& contentType){
+                void setContentType(const std::string& contentType){
                     addHeader("Contetn-Type",contentType);
                 }
-                void addHeader(const string& key,const string& value){
+                void addHeader(const std::string& key,const std::string& value){
                     headers_[key] = value;
                 }
-                void setBody(const string& body){
+                void setBody(const std::string& body){
                     body_ = body;
                 }
                 void appendToBuffer(Buffer* output)const;
             private:
-                std::map<string, string> headers_;
-                HttpStatusCode statusCode_;
-                string statusMessage_;
-                bool closeConnection_;
-                string body_;
+                std::map<std::string, std::string> headers_;
+                HttpStatusCode  statusCode_;
+                std::string     statusMessage_;
+                bool            closeConnection_;
+                std::string     body_;
         };
     }
 }

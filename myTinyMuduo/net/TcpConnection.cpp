@@ -2,14 +2,14 @@
 // Created by john on 4/22/19.
 //
 
-#include "net/TcpConnection.h"
+#include "net/TcpConnection.hpp"
 
-#include "base/Logging.h"
-#include "base/WeakCallback.h"
-#include "net/Channel.h"
-#include "net/EventLoop.h"
-#include "net/Socket.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "base/WeakCallback.hpp"
+#include "net/Channel.hpp"
+#include "net/EventLoop.hpp"
+#include "net/Socket.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <errno.h>
 
@@ -68,7 +68,7 @@ bool TcpConnection::getTcpInfo(struct tcp_info* tcpi) const {
     return socket_->getTcpInfo(tcpi);
 }
 
-string TcpConnection::getTcpInfoString() const {
+std::string TcpConnection::getTcpInfoString() const {
     char buf[1024];
     buf[0] = '\0';
     socket_->getTcpInfoString(buf,sizeof(buf));

@@ -2,8 +2,8 @@
 // Created by john on 4/21/19.
 //
 
-#include "net/Buffer.h"
-#include "net/SocketsOps.h"
+#include "net/Buffer.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <errno.h>
 #include <sys/uio.h>
@@ -35,7 +35,7 @@ ssize_t Buffer::readFd(int fd, int *savedErrno) {
 
     if(n < 0){
         *savedErrno = errno;
-    }else if(implicit_cast<size_t >(n) <= writable){
+    }else if(static_cast<size_t >(n) <= writable){
         //读到的字节数小于原Buffer的可写区，则数据全部读到Buffer，
         // Buffer可读区并入那个字节的可写区
         writerIndex_ += n;

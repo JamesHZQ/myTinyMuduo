@@ -1,7 +1,7 @@
-#ifndef MUDUO_NET_HTTP_HTTPCONTEXT_H
-#define MUDUO_NET_HTTP_HTTPCONTEXT_H
+#ifndef MUDUO_NET_HTTP_HTTPCONTEXT_HPP
+#define MUDUO_NET_HTTP_HTTPCONTEXT_HPP
 
-#include"base/copyable.h"
+#include"base/copyable.hpp"
 #include"net/http/HttpRequest.hpp"
 
 namespace muduo{

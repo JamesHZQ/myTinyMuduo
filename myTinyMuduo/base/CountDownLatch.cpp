@@ -1,7 +1,7 @@
 //
 // Created by john on 4/15/19.
 //
-#include "base/CountDownLatch.h"
+#include "base/CountDownLatch.hpp"
 using namespace muduo;
 
 CountDownLatch::CountDownLatch(int count)
@@ -18,7 +18,7 @@ void CountDownLatch::wait() {
     }
 }
 
-//递减计数器，在减到零时通知其他所有等待计数器减到零的线程
+//递减计数器，在减到零时通知其他所有等待计数器减到零的线程（阻塞在CountDownLatch::wait()的线程）
 void CountDownLatch::countDown() {
     MutexLockGuard lock(mutex_);
     --count_;

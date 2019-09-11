@@ -1,13 +1,13 @@
 //
 // Created by john on 4/18/19.
 //
-#include "base/Logging.h"
-#include "net/Channel.h"
-#include "net/EventLoop.h"
+#include "base/Logging.hpp"
+#include "net/Channel.hpp"
+#include "net/EventLoop.hpp"
 
 #include <sstream>
 #include <poll.h>
-
+#include <string>
 using namespace muduo;
 using namespace muduo::net;
 
@@ -95,13 +95,13 @@ void Channel::handleEventWithGuard(Timestamp receiveTime) {
     eventHandling_ = false;
 }
 
-string Channel::reventsToString() const {
+std::string Channel::reventsToString() const {
     return eventsToString(fd_,revents_);
 }
-string Channel::eventsToString() const {
+std::string Channel::eventsToString() const {
     return eventsToString(fd_,events_);
 }
-string Channel::eventsToString(int fd,int ev) {
+std::string Channel::eventsToString(int fd,int ev) {
     std::ostringstream oss;
     oss<<fd<<": ";
     if(ev & POLLIN)

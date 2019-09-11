@@ -2,12 +2,12 @@
 // Created by john on 4/21/19.
 //
 
-#include "net/Acceptor.h"
+#include "net/Acceptor.hpp"
 
-#include "base/Logging.h"
-#include "net/EventLoop.h"
-#include "net/InetAddress.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "net/EventLoop.hpp"
+#include "net/InetAddress.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <errno.h>
 #include <fcntl.h>

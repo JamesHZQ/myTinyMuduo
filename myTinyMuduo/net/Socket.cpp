@@ -2,14 +2,15 @@
 // Created by john on 4/18/19.
 //
 
-#include "net/Socket.h"
-#include "base/Logging.h"
-#include "net/InetAddress.h"
-#include "net/SocketsOps.h"
+#include "net/Socket.hpp"
+#include "base/Logging.hpp"
+#include "net/InetAddress.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
+#include <string.h>
 
 using namespace muduo;
 using namespace muduo::net;
@@ -21,7 +22,7 @@ Socket::~Socket() {
 
 bool Socket::getTcpInfo(struct tcp_info *tcpi) const {
     socklen_t len = sizeof(*tcpi);
-    memZero(tcpi,len);
+    memset(tcpi, 0, len);
     return ::getsockopt(sockfd_,SOL_TCP,TCP_INFO,tcpi,&len)==0;
 }
 
@@ -61,7 +62,7 @@ void Socket::listen() {
 
 int Socket::accept(InetAddress *peeraddr) {
     struct sockaddr_in6 addr;
-    memZero(&addr, sizeof(addr));
+    memset(&addr, 0, sizeof(addr));
     int connfd = sockets::accept(sockfd_,&addr);
     if(connfd >= 0){
         peeraddr->setSockAddrInet6(addr);

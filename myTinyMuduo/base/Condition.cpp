@@ -1,7 +1,7 @@
 //
 // Created by john on 4/15/19.
 //
-#include "base/Condition.h"
+#include "base/Condition.hpp"
 
 #include <errno.h>
 
@@ -17,6 +17,8 @@ bool muduo::Condition::waitForSeconds(double seconds) {
     abstime.tv_sec += static_cast<time_t>((abstime.tv_nsec + nanoseconds) / kNanoSecondsPerSecond);
     abstime.tv_nsec = static_cast<long>((abstime.tv_nsec + nanoseconds) % kNanoSecondsPerSecond);
 
+    //pthread_cond_timedwait会释放锁，所以使用UnassignGuard对象解注册，在pthread_cond_timedwait返回时重新上锁
+    //随后后UnassignGuard对象析构重新注册。
     MutexLock::UnassignGuard ug(mutex_);
     //超时返回true
     return ETIMEDOUT == pthread_cond_timedwait(&pcond_,mutex_.getpthreadMutex(),&abstime);

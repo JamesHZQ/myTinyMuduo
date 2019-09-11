@@ -2,11 +2,10 @@
 // Created by john on 4/19/19.
 //
 
-#include "net/poller/PollPoller.h"
+#include "net/poller/PollPoller.hpp"
 
-#include "base/Logging.h"
-#include "base/Types.h"
-#include "net/Channel.h"
+#include "base/Logging.hpp"
+#include "net/Channel.hpp"
 
 #include <assert.h>
 #include <errno.h>
@@ -123,7 +122,7 @@ void PollPoller::removeChannel(Channel *channel) {
     size_t n = channels_.erase(channel->fd());
     assert(n==1);(void)n;
     //要是最后一个直接删除
-    if(implicit_cast<size_t>(idx) == pollfds_.size()-1){
+    if(static_cast<size_t>(idx) == pollfds_.size()-1){
         pollfds_.pop_back();
     }else{
         int channelAtEnd = pollfds_.back().fd;

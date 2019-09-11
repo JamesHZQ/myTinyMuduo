@@ -2,12 +2,12 @@
 // Created by john on 4/27/19.
 //
 
-#include "net/TcpClient.h"
+#include "net/TcpClient.hpp"
 
-#include "base/Logging.h"
-#include "net/Connector.h"
-#include "net/EventLoop.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "net/Connector.hpp"
+#include "net/EventLoop.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <stdio.h>
 
@@ -26,7 +26,7 @@ namespace muduo{
         }
     }
 }
-TcpClient::TcpClient(EventLoop *loop, const InetAddress serverAddr, const string &nameArg)
+TcpClient::TcpClient(EventLoop *loop, const InetAddress serverAddr, const std::string &nameArg)
     : loop_(CHECK_NOTNULL(loop)),
       connector_(new Connector(loop,serverAddr)),
       name_(nameArg),
@@ -91,7 +91,7 @@ void TcpClient::newConnection(int sockfd) {
     char buf[32];
     snprintf(buf,sizeof(buf),":%s#%d",peerAddr.toIpPort().c_str(),nextConnId_);
     ++nextConnId_;
-    string connName = name_+buf;
+    std::string connName = name_+buf;
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
     TcpConnectionPtr conn(new TcpConnection(loop_,connName,sockfd,localAddr,peerAddr));
 

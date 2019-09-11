@@ -2,7 +2,7 @@
 // Created by john on 4/16/19.
 //
 
-#include "base/LogStream.h"
+#include "base/LogStream.hpp"
 
 #include <algorithm>
 #include <limits>

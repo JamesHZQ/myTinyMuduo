@@ -2,10 +2,9 @@
 // Created by john on 4/18/19.
 //
 
-#include "net/SocketsOps.h"
-#include "base/Logging.h"
-#include "base/Types.h"
-#include "net/Endian.h"
+#include "net/SocketsOps.hpp"
+#include "base/Logging.hpp"
+#include "net/Endian.hpp"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -17,68 +16,31 @@
 using namespace muduo;
 using namespace muduo::net;
 
-namespace
-{
-
-    typedef struct sockaddr SA;
-
-#if VALGRIND || defined (NO_ACCEPT4)
-    void setNonBlockAndCloseOnExec(int sockfd)
-{
-  //将套接字描述符设为非阻塞
-  // non-block
-  int flags = ::fcntl(sockfd, F_GETFL, 0);
-  flags |= O_NONBLOCK;
-  int ret = ::fcntl(sockfd, F_SETFL, flags);
-  // FIXME check
-
-  //套接字描述符设为exec-关闭？
-  // close-on-exec
-  flags = ::fcntl(sockfd, F_GETFD, 0);
-  flags |= FD_CLOEXEC;
-  ret = ::fcntl(sockfd, F_SETFD, flags);
-  // FIXME check
-
-  (void)ret;
-}
-#endif
-
-}  // namespace
 
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in6 *addr) {
-    return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
+    return reinterpret_cast<const struct sockaddr*>(addr);
 }
 struct sockaddr* sockets::sockaddr_cast(struct sockaddr_in6* addr){
-    return static_cast<struct sockaddr*>(implicit_cast<void*>(addr));
+    return reinterpret_cast<struct sockaddr*>(addr);
 }
 const struct sockaddr* sockets::sockaddr_cast(const struct sockaddr_in* addr)
 {
-    return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
+    return reinterpret_cast<const struct sockaddr*>(addr);
 }
 const struct sockaddr_in* sockets::sockaddr_in_cast(const struct sockaddr* addr){
-    return static_cast<const struct sockaddr_in*>(implicit_cast<const void*>(addr));
+    return reinterpret_cast<const struct sockaddr_in*>(addr);
 }
 
 const struct sockaddr_in6* sockets::sockaddr_in6_cast(const struct sockaddr* addr){
-    return static_cast<const struct sockaddr_in6*>(implicit_cast<const void*>(addr));
+    return reinterpret_cast<const struct sockaddr_in6*>(addr);
 }
 
 int sockets::creatNonblockingOrDie(sa_family_t family) {
-#if VALGRIND
-    int sockfd = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
-    if (sockfd < 0)
-    {
-        LOG_SYSFATAL << "sockets::createNonblockingOrDie";
-    }
-
-    setNonBlockAndCloseOnExec(sockfd);
-#else
     //创建套接字的同时设置套接字描述的属性（TCP套接字+非阻塞+程序退出时自动关闭套接字）
     int sockfd = ::socket(family,SOCK_STREAM|SOCK_NONBLOCK|SOCK_CLOEXEC,IPPROTO_TCP);
     if(sockfd < 0){
         LOG_SYSFATAL<<"sockets::createNonblockingOrDie";
     }
-#endif
     return sockfd;
 }
 
@@ -205,7 +167,7 @@ int sockets::getSocketError(int sockfd) {
 //获取本地地址
 struct sockaddr_in6 sockets::getLocalAddr(int sockfd) {
     struct sockaddr_in6 localaddr;
-    memZero(&localaddr, sizeof(localaddr));
+    memset(&localaddr, 0, sizeof(localaddr));
     socklen_t addrlen = static_cast<socklen_t >(sizeof(localaddr));
     if(::getsockname(sockfd,sockaddr_cast(&localaddr),&addrlen) < 0){
         LOG_SYSERR<<"sockets::getLocalAddr";
@@ -216,7 +178,7 @@ struct sockaddr_in6 sockets::getLocalAddr(int sockfd) {
 //获取对方地址
 struct sockaddr_in6 sockets::getPeerAddr(int sockfd) {
     struct sockaddr_in6 peeraddr;
-    memZero(&peeraddr, sizeof(peeraddr));
+    memset(&peeraddr, 0, sizeof(peeraddr));
     socklen_t addrlen = static_cast<socklen_t >(sizeof(peeraddr));
     if(::getpeername(sockfd,sockaddr_cast(&peeraddr),&addrlen) < 0){
         LOG_SYSERR<<"sockets::getPeerAddr";

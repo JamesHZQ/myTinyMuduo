@@ -1,6 +1,6 @@
 #include"net/http/HttpServer.hpp"
 
-#include"base/Logging.h"
+#include"base/Logging.hpp"
 #include"net/http/HttpContext.hpp"
 #include"net/http/HttpRequest.hpp"
 #include"net/http/HttpRespose.hpp"
@@ -20,7 +20,7 @@ namespace muduo{
     }
 }
 
-HttpServer::HttpServer(EventLoop* loop, const InetAddress& listenAddr,const string& name,
+HttpServer::HttpServer(EventLoop* loop, const InetAddress& listenAddr,const std::string& name,
                         TcpServer::Option option)
     : server_(loop,listenAddr,name,option),
       httpCallback_(detail::defaultHttpCallback)
@@ -53,7 +53,7 @@ void HttpServer::onMessage(const TcpConnectionPtr& conn,Buffer* buf,Timestamp re
 }
 
 void HttpServer::onRequest(const TcpConnectionPtr& conn, const HttpRequest& req){
-    const string& connection = req.getHeader("Connection");
+    const std::string& connection = req.getHeader("Connection");
     //长连接or短连接
     bool close = connection == "close"||
         (req.getVersion()==HttpRequest::kHttp10 && connection != "Keep-Alive");

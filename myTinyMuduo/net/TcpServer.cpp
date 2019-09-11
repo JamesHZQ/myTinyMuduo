@@ -2,21 +2,21 @@
 // Created by john on 4/25/19.
 //
 
-#include "net/TcpServer.h"
+#include "net/TcpServer.hpp"
 
-#include "base/Logging.h"
-#include "net/Acceptor.h"
-#include "net/EventLoop.h"
-#include "net/EventLoopThread.h"
-#include "net/EventLoopThreadPool.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "net/Acceptor.hpp"
+#include "net/EventLoop.hpp"
+#include "net/EventLoopThread.hpp"
+#include "net/EventLoopThreadPool.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr, const string &nameArg, Option option)
+TcpServer::TcpServer(EventLoop *loop, const InetAddress &listenAddr, const std::string &nameArg, Option option)
     : loop_(CHECK_NOTNULL(loop)),
       ipPort_(listenAddr.toIpPort()),
       name_(nameArg),
@@ -65,7 +65,7 @@ void TcpServer::newConnection(int sockfd, const InetAddress &peerAddr) {
     char buf[64];
     snprintf(buf, sizeof(buf),"-%s#%d",ipPort_.c_str(),nextConnId_);
     ++nextConnId_;  //对每个新建立的连接编号
-    string connName = name_+buf;
+    std::string connName = name_+buf;
     LOG_INFO << "TcpServer::newConnection [" << name_<< "] - new connection ["
              << connName<< "] from " << peerAddr.toIpPort();
     InetAddress localAddr(sockets::getLocalAddr(sockfd));

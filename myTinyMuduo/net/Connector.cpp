@@ -2,12 +2,12 @@
 // Created by john on 4/21/19.
 //
 
-#include "net/Connector.h"
+#include "net/Connector.hpp"
 
-#include "base/Logging.h"
-#include "net/Channel.h"
-#include "net/EventLoop.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "net/Channel.hpp"
+#include "net/EventLoop.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <errno.h>
 

@@ -2,14 +2,15 @@
 // Created by john on 4/21/19.
 //
 
-#include "net/InetAddress.h"
+#include "net/InetAddress.hpp"
 
-#include "base/Logging.h"
-#include "net/Endian.h"
-#include "net/SocketsOps.h"
+#include "base/Logging.hpp"
+#include "net/Endian.hpp"
+#include "net/SocketsOps.hpp"
 
 #include <netdb.h>
 #include <netinet/in.h>
+#include <string.h>
 
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 //本机任意可绑定IP地址
@@ -59,14 +60,14 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6) {
     static_assert(offsetof(InetAddress, addr_) == 0, "addr_ offset 0");
 
     if(ipv6){
-        memZero(&addr6_, sizeof(addr6_));
+        memset(&addr6_, 0, sizeof(addr6_));
         addr6_.sin6_family = AF_INET6;
         in6_addr ip = loopbackOnly?in6addr_loopback:in6addr_any;
         //IPV6地址不需要转换为网络字节序（in6addr_loopback和in6addr_any已经是网络字节序）
         addr6_.sin6_addr = ip;
         addr6_.sin6_port = sockets::hostToNetwork16(port);
     }else{
-        memZero(&addr_, sizeof(addr_));
+        memset(&addr_, 0, sizeof(addr_));
         addr_.sin_family = AF_INET;
         in_addr_t ip = loopbackOnly ? kInaddrLoopback:kInaddrAny;
         //将端口和IP地址转换为网络字节序
@@ -78,16 +79,16 @@ InetAddress::InetAddress(uint16_t port, bool loopbackOnly, bool ipv6) {
 //制定IP地址，端口，是否IPV6
 InetAddress::InetAddress(StringArg ip, uint16_t port, bool ipv6) {
     if(ipv6){
-        memZero(&addr6_, sizeof(addr6_));
+        memset(&addr6_, 0, sizeof(addr6_));
         //将ip转换为c字符串，调用fromIpPort设置addr6_
         sockets::fromIpPort(ip.c_str(),port,&addr6_);
     }else{
-        memZero(&addr_, sizeof(addr_));
+        memset(&addr_, 0, sizeof(addr_));
         sockets::fromIpPort(ip.c_str(),port,&addr_);
     }
 }
 
-string InetAddress::toIpPort() const {
+std::string InetAddress::toIpPort() const {
     char buf[64] = "";
     sockets::toIpPort(buf, sizeof(buf),getSockAddr());
     return buf;
@@ -109,7 +110,7 @@ bool InetAddress::resolve(StringArg hostname, InetAddress *out) {
     struct hostent hent;
     struct hostent* he = NULL;
     int herrno = 0;
-    memZero(&hent, sizeof(hent));
+    memset(&hent, 0, sizeof(hent));
     int ret = gethostbyname_r(hostname.c_str(),&hent,t_resolveBuffer, sizeof(t_resolveBuffer), &he, &herrno);
     if(ret == 0 && he != NULL){
         assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));

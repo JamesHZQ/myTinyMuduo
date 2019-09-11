@@ -2,15 +2,16 @@
 // Created by john on 4/19/19.
 //
 
-#include "net/TimerQueue.h"
+#include "net/TimerQueue.hpp"
 
-#include "base/Logging.h"
-#include "net/EventLoop.h"
-#include "net/Timer.h"
-#include "net/TimerId.h"
+#include "base/Logging.hpp"
+#include "net/EventLoop.hpp"
+#include "net/Timer.hpp"
+#include "net/TimerId.hpp"
 
 #include <sys/timerfd.h>
 #include <unistd.h>
+#include<string.h>
 
 namespace muduo{
     namespace net{
@@ -48,8 +49,8 @@ namespace muduo{
             void resetTimerfd(int timerfd, Timestamp expiration){
                 struct itimerspec newValue;
                 struct itimerspec oldValue;
-                memZero(&newValue, sizeof(newValue));
-                memZero(&oldValue, sizeof(oldValue));
+                memset(&newValue, 0, sizeof(newValue));
+                memset(&oldValue, 0, sizeof(oldValue));
                 newValue.it_value = howMuchTimeFromNow(expiration);
                 int ret = ::timerfd_settime(timerfd,0,&newValue,&oldValue);
                 if(ret){

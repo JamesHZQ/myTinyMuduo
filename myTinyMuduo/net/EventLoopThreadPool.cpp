@@ -2,17 +2,17 @@
 // Created by john on 4/25/19.
 //
 
-#include "net/EventLoopThreadPool.h"
+#include "net/EventLoopThreadPool.hpp"
 
-#include "net/EventLoop.h"
-#include "net/EventLoopThread.h"
+#include "net/EventLoop.hpp"
+#include "net/EventLoopThread.hpp"
 
 #include <stdio.h>
 
 using namespace muduo;
 using namespace muduo::net;
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop, const string &nameArg)
+EventLoopThreadPool::EventLoopThreadPool(EventLoop *baseLoop, const std::string &nameArg)
     : baseLoop_(baseLoop),
       name_(nameArg),
       started_(false),
@@ -57,7 +57,7 @@ EventLoop* EventLoopThreadPool::getNextLoop() {
     if(!loops_.empty()){
         loop = loops_[next_];
         ++next_;
-        if(implicit_cast<size_t >(next_) >= loops_.size()){
+        if(static_cast<size_t >(next_) >= loops_.size()){
             next_=0;
         }
     }

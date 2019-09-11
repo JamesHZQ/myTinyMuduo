@@ -1,9 +1,8 @@
-#ifndef MUDUO_NET_HTTP_HTTPREQUEST_H
-#define MUDUO_NET_HTTP_HTTPREQUEST_H
+#ifndef MUDUO_NET_HTTP_HTTPREQUEST_HPP
+#define MUDUO_NET_HTTP_HTTPREQUEST_HPP
 
-#include"base/copyable.h"
-#include"base/Timestamp.h"
-#include"base/Types.h"
+#include"base/copyable.hpp"
+#include"base/Timestamp.hpp"
 
 #include<map>
 #include<assert.h>
@@ -28,7 +27,7 @@ namespace muduo{
                 }
                 bool setMethod(const char*start,const char* end){
                     assert(method_==kInvalid);
-                    string m(start,end);
+                    std::string m(start,end);
                     if(m=="GET"){
                         method_ = kGet;
                     }else if(m=="POST"){
@@ -73,13 +72,13 @@ namespace muduo{
                 void setPath(const char* start,const char* end){
                     path_.assign(start,end);
                 }
-                const string& path()const{
+                const std::string& path()const{
                     return path_;
                 }
                 void setQuery(const char* start,const char* end){
                     query_.assign(start,end);
                 }
-                const string& query()const{
+                const std::string& query()const{
                     return query_;
                 }
                 void setReceiveTime(Timestamp t){
@@ -90,27 +89,27 @@ namespace muduo{
                 }
                 void addHeader(const char* start,const char* colon, const char* end){
                     //找出头部的标签和对应的值，并去掉空格，添加到headers_
-                    string filed(start, colon);
+                    std::string filed(start, colon);
                     ++colon;
                     while(colon<end&&isspace(*colon)){
                         ++colon;
                     }
-                    string value(colon, end);
+                    std::string value(colon, end);
                     while(!value.empty()&&isspace(value[value.size()-1])){
                         value.resize(value.size()-1);
                     }
                     headers_[filed] = value;
                 }
-                string getHeader(const string& field)const{
+                std::string getHeader(const std::string& field)const{
                     //返回相应标签的值（string）
-                    string result;
-                    std::map<string, string>::const_iterator it = headers_.find(field);
+                    std::string result;
+                    std::map<std::string, std::string>::const_iterator it = headers_.find(field);
                     if(it!=headers_.end()){
                         result = it->second;
                     }
                     return result;
                 }
-                const std::map<string, string>&headers()const{
+                const std::map<std::string, std::string>&headers()const{
                     return headers_;
                 }
                 void swap(HttpRequest& that){
@@ -122,12 +121,12 @@ namespace muduo{
                     headers_.swap(that.headers_);
                 }
             private:
-                Method method_;
-                Version version_;
-                string path_;
-                string query_;
-                Timestamp receiveTime_;
-                std::map<string,string> headers_;
+                Method      method_;
+                Version     version_;
+                std::string path_;
+                std::string query_;
+                Timestamp   receiveTime_;
+                std::map<std::string,std::string> headers_;
 
         };
     }

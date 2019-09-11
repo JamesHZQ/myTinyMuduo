@@ -2,10 +2,9 @@
 // Created by john on 4/17/19.
 //
 
-#include "base/Logging.h"
-#include "base/CurrentThread.h"
-#include "base/TimeZone.h"
-#include "base/Timestamp.h"
+#include "base/Logging.hpp"
+#include "base/CurrentThread.hpp"
+#include "base/Timestamp.hpp"
 
 #include <errno.h>
 #include <stdio.h>
@@ -94,7 +93,6 @@ namespace muduo
     //将输出和flush回调函数都设为默认函数，可通过setxxx修改
     Logger::OutputFunc g_output = defaultOutput;
     Logger::FlushFunc g_flush = defaultFlush;
-    TimeZone g_logTimeZone;
 
 }  // namespace muduo
 
@@ -130,17 +128,8 @@ void Logger::Impl::formatTime()
     {
         t_lastSecond = seconds;
         struct tm tm_time;
-        if (g_logTimeZone.valid())
-        {
-            //得到当前本地时间
-            //是否还应该调用fromLocalTime得到UTC时间
-            tm_time = g_logTimeZone.toLocalTime(seconds);
-        }
-        else
-        {
-            //调用系统函数，得到本地时间（UTC）
-            ::gmtime_r(&seconds, &tm_time); // FIXME TimeZone::fromUtcTime
-        }
+        //调用系统函数，得到本地时间（UTC）
+        ::gmtime_r(&seconds, &tm_time);
 
         //将格式化的
         int len = snprintf(t_time, sizeof(t_time), "%4d%02d%02d %02d:%02d:%02d",
@@ -148,21 +137,9 @@ void Logger::Impl::formatTime()
                            tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
         assert(len == 17); (void)len;
     }
-
-    if (g_logTimeZone.valid())
-    {
-        //将.+6位有效数字写到us的buf_
-        Fmt us(".%06d ", microseconds);
-        assert(us.length() == 8);
-        //相同秒数的时间只有微秒数是不同的
-        stream_ << T(t_time, 17) << T(us.data(), 8);
-    }
-    else
-    {
-        Fmt us(".%06dZ ", microseconds);
-        assert(us.length() == 9);
-        stream_ << T(t_time, 17) << T(us.data(), 9);
-    }
+    Fmt us(".%06dZ ", microseconds);
+    assert(us.length() == 9);
+    stream_ << T(t_time, 17) << T(us.data(), 9);
 }
 
 void Logger::Impl::finish()
@@ -220,9 +197,4 @@ void Logger::setOutput(OutputFunc out)
 void Logger::setFlush(FlushFunc flush)
 {
     g_flush = flush;
-}
-
-void Logger::setTimeZone(const TimeZone& tz)
-{
-    g_logTimeZone = tz;
 }

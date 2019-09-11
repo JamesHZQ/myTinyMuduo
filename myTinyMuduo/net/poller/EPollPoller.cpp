@@ -1,10 +1,10 @@
 //
 // Created by john on 5/4/19.
 //
-#include "net/poller/EPollPoller.h"
+#include "net/poller/EPollPoller.hpp"
 
-#include "base/Logging.h"
-#include "net/Channel.h"
+#include "base/Logging.hpp"
+#include "net/Channel.hpp"
 
 #include <assert.h>
 #include <errno.h>
@@ -51,7 +51,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList *activeChannels) {
     if(numEvents > 0){
         LOG_TRACE<<numEvents<<" events happened";
         fillActiveChannels(numEvents,activeChannels);
-        if(implicit_cast<size_t >(numEvents)==events_.size()){
+        if(static_cast<size_t >(numEvents)==events_.size()){
             events_.resize(events_.size()*2);
         }
     }else if(numEvents == 0){
@@ -65,7 +65,7 @@ Timestamp EPollPoller::poll(int timeoutMs, ChannelList *activeChannels) {
     return now;
 }
 void EPollPoller::fillActiveChannels(int numEvents, ChannelList *activeChannels) const {
-    assert(implicit_cast<size_t>(numEvents) <= events_.size());
+    assert(static_cast<size_t>(numEvents) <= events_.size());
     for(int i=0; i<numEvents; ++i){
         Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
 #ifndef NDEBUG
@@ -133,7 +133,7 @@ void EPollPoller::removeChannel(Channel *channel) {
 
 void EPollPoller::update(int operation, Channel *channel) {
     struct epoll_event event;
-    memZero(&event, sizeof(event));
+    memset(&event, 0, sizeof(event));
     event.events = channel->events();
     event.data.ptr = channel;
     int fd = channel->fd();

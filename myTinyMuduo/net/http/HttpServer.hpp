@@ -1,7 +1,7 @@
-#ifndef MUDUO_NET_HTTPSERVER_H
-#define MUDUO_NET_HTTPSERVER_H
+#ifndef MUDUO_NET_HTTPSERVER_HPP
+#define MUDUO_NET_HTTPSERVER_HPP
 
-#include"net/TcpServer.h"
+#include"net/TcpServer.hpp"
 namespace muduo{
     namespace net{
         class HttpRequest;
@@ -10,7 +10,7 @@ namespace muduo{
         class HttpServer : noncopyable{
             public:
                 typedef std::function<void(const HttpRequest&,HttpResponse*)> HttpCallback;
-                HttpServer(EventLoop* loop,const InetAddress& listenAddr, const string& name, 
+                HttpServer(EventLoop* loop,const InetAddress& listenAddr, const std::string& name, 
                             TcpServer::Option option=TcpServer::kNoReusePort);
                 EventLoop* getLoop()const{
                     return server_.getLoop();

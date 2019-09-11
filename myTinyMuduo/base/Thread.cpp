@@ -1,7 +1,6 @@
-#include "base/Thread.h"
-#include "base/CurrentThread.h"
-#include "base/Exception.h"
-#include "base/Logging.h"
+#include "base/Thread.hpp"
+#include "base/CurrentThread.hpp"
+#include "base/Logging.hpp"
 
 #include <type_traits>
 
@@ -14,6 +13,13 @@
 #include <linux/unistd.h>
 
 namespace muduo{
+    namespace CurrentThread{
+        //线程特定数据
+        __thread int  t_cachedTid = 0;
+        __thread char t_tidString[32];
+        __thread int  t_tidStringLength = 6;
+        __thread const char* t_threadName = "unknow";
+    }
     namespace detail{
         pid_t gettid(){
             return static_cast<pid_t >(::syscall(SYS_gettid));
@@ -41,11 +47,11 @@ namespace muduo{
         struct ThreadData{
             typedef muduo::Thread::ThreadFunc ThreadFunc;
             ThreadFunc      func_;
-            string          name_;
+            std::string     name_;
             pid_t*          tid_;
             CountDownLatch* latch_;
 
-            ThreadData(ThreadFunc func,const string& name,pid_t* tid,CountDownLatch* latch)
+            ThreadData(ThreadFunc func,const std::string& name,pid_t* tid,CountDownLatch* latch)
                 : func_(std::move(func)),
                   name_(name),
                   tid_(tid),
@@ -62,11 +68,6 @@ namespace muduo{
                 try{
                     func_();
                     muduo::CurrentThread::t_threadName = "finished";
-                }catch (const Exception& ex){
-                    muduo::CurrentThread::t_threadName = "crashed";
-                    fprintf(stderr,"exception caught in Thread %s\n",name_.c_str());
-                    fprintf(stderr,"reason: %s\n",ex.what());
-                    abort();
                 }catch (const std::exception& ex){
                     muduo::CurrentThread::t_threadName = "crashed";
                     fprintf(stderr, "exception caught in Thread %s\n", name_.c_str());
@@ -115,7 +116,7 @@ namespace muduo{
 
 
 
-    Thread::Thread(ThreadFunc func, const string &name)
+    Thread::Thread(ThreadFunc func, const std::string &name)
         : started_(false),
           joined_(false),
           pthreadId_{0},
