@@ -15,6 +15,6 @@ void Timer::restart(muduo::Timestamp now) {
         expiration_ = addTime(now,interval_);
     }else{
         //如果不需要重复，将过期时间设为不可用
-        expiration_ = Timestamp::invalid();
+        expiration_ = Timestamp();
     }
 }

@@ -35,7 +35,7 @@ TcpConnection::TcpConnection(EventLoop *loop,
                              int sockfd,
                              const InetAddress &localAddr,
                              const InetAddress &peerAddr)
-                : loop_(CHECK_NOTNULL(loop)),
+                : loop_(loop),
                   name_(name),
                   state_(kConnecting),
                   reading_(true),

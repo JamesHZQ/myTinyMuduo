@@ -36,9 +36,9 @@ namespace muduo{
         std::function<void (CLASS*,ARGS...)> function_; //用于调用object对象的成员函数的函数对象
     };
 
-    //构造并返回WeakCallback对象，该函数并不会增加shared_ptr<CLASS>的引用计数（引用传参）
+    //构造并返回WeakCallback对象，该函数并不会增加shared_ptr<CLASS>的引用计数（引用传参） 
     template <typename CLASS,typename... ARGS>
-    WeakCallback<CLASS,ARGS...>                           //可以推断出传入的成员函数（指针）的参数类型
+    WeakCallback<CLASS,ARGS...>                                 //可以推断出传入的成员函数（指针）的参数类型
     makeWeakCallback(const std::shared_ptr<CLASS>& object, void (CLASS::*function)(ARGS...)){
         return WeakCallback<CLASS,ARGS...>(object,function);
     }

@@ -10,22 +10,19 @@
 #include <assert.h>
 #include <pthread.h>
 
-
-//检查pthread系列函数的返回值，成功返回零
-#define MCHECK(ret) ({ __typeof__ (ret) errnum = (ret); assert(errnum == 0); (void) errnum;})
-
-
 namespace muduo{
     class MutexLock:noncopyable{
     public:
         MutexLock():holder_(0){
             //初始化互斥量，不设置互斥量属性
-            MCHECK(pthread_mutex_init(&mutex_,NULL));
+            int ret = pthread_mutex_init(&mutex_,NULL);
+            assert(ret==0);
         }
         ~MutexLock(){
             //在没有线程锁住这个互斥量时，销毁原始互斥量
             assert(holder_==0);
-            MCHECK(pthread_mutex_destroy(&mutex_));
+            int ret = pthread_mutex_destroy(&mutex_);
+            assert(ret==0);
         }
         //判断当前线程是否锁住互斥量
         bool isLockedByThisThread()const{
@@ -38,14 +35,16 @@ namespace muduo{
 
         //调用线程锁住互斥量，并记录锁住互斥量线程的tid
         void lock(){
-            MCHECK(pthread_mutex_lock(&mutex_));
+            int ret = pthread_mutex_lock(&mutex_);
+            assert(ret == 0);
             assignHolder();
         }
 
         //先解注册，在解锁以免竞争
         void unlock(){
             unassignHolder();
-            MCHECK(pthread_mutex_unlock(&mutex_));
+            int ret = pthread_mutex_unlock(&mutex_);
+            assert(ret == 0);
         }
 
         //返回原始互斥量的地址
@@ -99,5 +98,5 @@ namespace muduo{
         MutexLock& mutex_;
     };
 }
-#define MutexLockGuard(x) error "Missing guard object name"
+
 #endif //MY_MUDUO_BASE_TEST_MUTEX_H

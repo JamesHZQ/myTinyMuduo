@@ -27,7 +27,7 @@ namespace muduo{
     }
 }
 TcpClient::TcpClient(EventLoop *loop, const InetAddress serverAddr, const std::string &nameArg)
-    : loop_(CHECK_NOTNULL(loop)),
+    : loop_(loop),
       connector_(new Connector(loop,serverAddr)),
       name_(nameArg),
       connectionCallback_(defaultConnectionCallback),

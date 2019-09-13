@@ -117,7 +117,7 @@ namespace muduo{
                     std::swap(version_,that.version_);
                     path_.swap(that.path_);
                     query_.swap(that.query_);
-                    receiveTime_.swap(that.receiveTime_);
+                    std::swap(receiveTime_,that.receiveTime_);
                     headers_.swap(that.headers_);
                 }
             private:

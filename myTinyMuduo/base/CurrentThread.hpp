@@ -19,7 +19,7 @@ namespace muduo
         void cacheTid();
 
         inline int tid(){
-            if (__builtin_expect(t_cachedTid == 0, 0)){
+            if (t_cachedTid == 0){
                 cacheTid();
             }
             return t_cachedTid;
@@ -38,16 +38,8 @@ namespace muduo
         }
 
         bool isMainThread();
-
         void sleepUsec(int64_t usec);
-
-        //string stackTrace(bool demangle);
-
-
     }
 }
-
-
-
 
 #endif //MY_MUDUO_BASE_TEST_CURRENTTHREAD_H
