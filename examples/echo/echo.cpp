@@ -4,14 +4,20 @@
 
 #include "echo.h"
 
-#include "base/Logging.h"
+#include "base/Logging.hpp"
+
+#include<string>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::placeholders::_3;
 
-EchoServer::EchoServer(muduo::net::EventLoop *loop,
-                       const muduo::net::InetAddress &listenAddr)
+using namespace muduo;
+using namespace muduo::net;
+using namespace std;
+
+EchoServer::EchoServer(EventLoop *loop,
+                       const InetAddress &listenAddr)
     : server_(loop,listenAddr,"EchoServer")
 {
     server_.setConnectionCallback(std::bind(&EchoServer::onConnection,this,_1));
@@ -22,17 +28,17 @@ void EchoServer::start() {
     server_.start();
 }
 
-void EchoServer::onConnection(const muduo::net::TcpConnectionPtr &conn) {
+void EchoServer::onConnection(const TcpConnectionPtr &conn) {
     LOG_INFO<<"EchoServer - "<<conn->peerAddress().toIpPort()<<"->"
                 << conn->localAddress().toIpPort() << " is "
                 << (conn->connected() ? "UP" : "DOWN");
 }
 
-void EchoServer::onMessage(const muduo::net::TcpConnectionPtr& conn,
-                           muduo::net::Buffer* buf,
-                           muduo::Timestamp time)
+void EchoServer::onMessage(const TcpConnectionPtr& conn,
+                           Buffer* buf,
+                           Timestamp time)
 {
-    muduo::string msg(buf->retrieveAllAsString());
+    string msg(buf->retrieveAllAsString());
     LOG_INFO << conn->name() << " echo " << msg.size() << " bytes, "
              << "data received at " << time.toString();
     conn->send(msg);

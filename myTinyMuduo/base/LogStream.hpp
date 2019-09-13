@@ -20,13 +20,10 @@ namespace muduo{
         template <int SIZE>
         class FixedBuffer:noncopyable{
         public:
-            FixedBuffer()
-                : cur_(data_){
-                setCookie(cookieStart);
+            FixedBuffer(): cur_(data_){
+                bzero();
             }
-            ~FixedBuffer(){
-                setCookie(cookieEnd);
-            }
+            ~FixedBuffer()=default;
 
             void append(const char* buf,size_t len){
                 if(static_cast<size_t >(avail())>len){
@@ -50,10 +47,7 @@ namespace muduo{
             void reset(){cur_=data_;}
             //写入字符置零，但没有reset？
             void bzero(){memset(data_, 0, sizeof(data_));}
-
             const char* debugString();
-            //设置构造和析构所使用的回调函数
-            void setCookie(void (*cookie)()){cookie_ = cookie;}
 
             //返回string或StringPiece
             std::string toString()const{return std::string(data_,length());}
@@ -62,11 +56,6 @@ namespace muduo{
         private:
             //返回尾后指针
             const char* end()const{ return data_+ sizeof(data_);}
-
-            static void cookieStart();
-            static void cookieEnd();
-
-            void(*cookie_)(); //函数指针用于回调
             char    data_[SIZE];
             char*   cur_;
         };

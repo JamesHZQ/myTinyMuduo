@@ -55,13 +55,11 @@ namespace muduo{
 
         LogStream& stream(){return impl_.stream_;}
 
-        static LogLevel logLevel();
-        static void setLogLevel(LogLevel level);
+        static LogLevel logLevel(){return g_logLevel;}
+        static void setLogLevel(LogLevel level){g_logLevel = level;}
+        static std::string getFLogname(){return fbasename_;}
+        static void setFLogname(std::string s){fbasename_ = s;} 
 
-        typedef void(*OutputFunc)(const char* msg,int len);
-        typedef void(*FlushFunc)();
-        static void setOutput(OutputFunc);
-        static void setFlush(FlushFunc);
     private:
         class Impl{
         public:
@@ -77,18 +75,17 @@ namespace muduo{
             SourceFile  basename_;
         };
         Impl impl_;
+    public:
+        static std::string fbasename_;
+        static LogLevel g_logLevel;
     };
-    extern Logger::LogLevel g_logLevel;
-    inline Logger::LogLevel Logger::logLevel() {
-        return g_logLevel;
-    }
 //__FILE__当前文件名（包含目录）， __LINE__当前行号
 //创建一个匿名Logger对象，Logger对象内部的impl对象含有LogStream，将日志内容写到
 //LogStream的buffer_中，在Logger的析构函数中将LogStream中的buffer_内容输出
 //匿名对象Logger，在1行log命令后会立即销毁
 #define LOG_TRACE if (muduo::Logger::logLevel() <= muduo::Logger::TRACE) muduo::Logger(__FILE__, __LINE__, muduo::Logger::TRACE, __func__).stream()
 #define LOG_DEBUG if (muduo::Logger::logLevel() <= muduo::Logger::DEBUG) muduo::Logger(__FILE__, __LINE__, muduo::Logger::DEBUG, __func__).stream()
-#define LOG_INFO if (muduo::Logger::logLevel() <= muduo::Logger::INFO) muduo::Logger(__FILE__, __LINE__).stream()
+#define LOG_INFO if (muduo::Logger::logLevel() <= muduo::Logger::INFO) muduo::Logger(__FILE__, __LINE__,muduo::Logger::INFO).stream()
 #define LOG_WARN muduo::Logger(__FILE__, __LINE__, muduo::Logger::WARN).stream()
 #define LOG_ERROR muduo::Logger(__FILE__, __LINE__, muduo::Logger::ERROR).stream()
 #define LOG_FATAL muduo::Logger(__FILE__, __LINE__, muduo::Logger::FATAL).stream()
@@ -97,15 +94,5 @@ namespace muduo{
 
 const char* strerror_tl(int savedErrno);
 
-#define CHECK_NOTNULL(val) ::muduo::CheckNotNull(__FILE__, __LINE__, "'" #val "' Must be non NULL", (val))
-
-
-template <typename T>
-T* CheckNotNull(Logger::SourceFile file,int line,const char* names,T* ptr){
-    if(ptr == NULL){
-        Logger(file,line,Logger::FATAL).stream()<<names;
-    }
-    return ptr;
-}
 }
 #endif //MY_TINYMUDUO_BASE_LOGGING_H

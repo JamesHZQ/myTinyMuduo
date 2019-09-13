@@ -5,12 +5,15 @@
 #include "base/Logging.hpp"
 #include "base/CurrentThread.hpp"
 #include "base/Timestamp.hpp"
+#include "base/StringPiece.hpp"
+#include "base/AsyncLogging.hpp"
 
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <sstream>
+using namespace std;
 
 namespace muduo
 {
@@ -19,81 +22,26 @@ namespace muduo
     __thread char t_time[64];
     __thread time_t t_lastSecond;
 
+    static pthread_once_t once_done = PTHREAD_ONCE_INIT;
+    static std::unique_ptr<AsyncLogging> asyncLogger;
+    void once_init()
+    {
+        asyncLogger.reset(new AsyncLogging(Logger::getFLogname()));
+        asyncLogger->start();
+    }
+    void logToFile(const char* logline,int len)
+    {
+        pthread_once(&once_done,once_init);
+        asyncLogger->append(logline,len);
+    }
     const char* strerror_tl(int savedErrno)
     {
-        //将错误写到t_errnobuf里
         return strerror_r(savedErrno, t_errnobuf, sizeof(t_errnobuf));
     }
-
-    Logger::LogLevel initLogLevel()
-    {
-        if (::getenv("MUDUO_LOG_TRACE"))
-            return Logger::TRACE;
-        else if (::getenv("MUDUO_LOG_DEBUG"))
-            return Logger::DEBUG;
-        else
-            return Logger::INFO;
-    }
-
-    Logger::LogLevel g_logLevel = initLogLevel();
-
+    Logger::LogLevel Logger::g_logLevel = Logger::INFO;
+    string Logger::fbasename_ = "hezhiqiang";
     //NUM_LOG_LEVELS的值就是LogLevel的数量
-    const char* LogLevelName[Logger::NUM_LOG_LEVELS] =
-            {
-                    "TRACE ",
-                    "DEBUG ",
-                    "INFO  ",
-                    "WARN  ",
-                    "ERROR ",
-                    "FATAL ",
-            };
-
-// helper class for known string length at compile time
-    class T
-    {
-    public:
-        T(const char* str, unsigned len)
-                :str_(str),
-                 len_(len)
-        {
-            assert(strlen(str) == len_);
-        }
-
-        const char* str_;
-        const unsigned len_;
-    };
-
-    //把T类型的字符串写到LogStream
-    inline LogStream& operator<<(LogStream& s, T v)
-    {
-        s.append(v.str_, v.len_);
-        return s;
-    }
-    //将文件名写到LogStream
-    inline LogStream& operator<<(LogStream& s, const Logger::SourceFile& v)
-    {
-        s.append(v.data_, v.size_);
-        return s;
-    }
-
-    //默认将Log日志写到标准输出
-    void defaultOutput(const char* msg, int len)
-    {
-        size_t n = fwrite(msg, 1, len, stdout);
-        //FIXME check n
-        (void)n;
-    }
-
-    //默认flush标准缓冲区
-    void defaultFlush()
-    {
-        fflush(stdout);
-    }
-
-    //将输出和flush回调函数都设为默认函数，可通过setxxx修改
-    Logger::OutputFunc g_output = defaultOutput;
-    Logger::FlushFunc g_flush = defaultFlush;
-
+    const char* LogLevelName[Logger::NUM_LOG_LEVELS] = {"TRACE ", "DEBUG ", "INFO  ", "WARN  ", "ERROR ", "FATAL "};
 }  // namespace muduo
 
 using namespace muduo;
@@ -109,9 +57,9 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
     //将当将线程的tid存到t_cachedTid
     CurrentThread::tid();
     //往LogStream里写入线程tid及其长度
-    stream_ << T(CurrentThread::tidString(), CurrentThread::tidStringLength());
+    stream_ << StringPiece(CurrentThread::tidString(), CurrentThread::tidStringLength());
     stream_ << "|";
-    stream_ << T(LogLevelName[level], 6);
+    stream_ << StringPiece(LogLevelName[level], 6);
     if (savedErrno != 0)
     {
         //往LogStream里写入errno
@@ -139,18 +87,13 @@ void Logger::Impl::formatTime()
     }
     Fmt us(".%06dZ ", microseconds);
     assert(us.length() == 9);
-    stream_ << T(t_time, 17) << T(us.data(), 9);
+    stream_ << StringPiece(t_time, 17) << StringPiece(us.data(), 9);
 }
 
 void Logger::Impl::finish()
 {
     //往LogStream的bufffer_写入结束字符
-    stream_ << " - " << basename_ << ':' << line_ << '\n';
-}
-
-Logger::Logger(SourceFile file, int line)
-        : impl_(INFO, 0, file, line)
-{
+    stream_ << " - " << StringPiece(basename_.data_,basename_.size_) << ':' << line_ << '\n';
 }
 
 Logger::Logger(SourceFile file, int line, LogLevel level, const char* func)
@@ -175,26 +118,12 @@ Logger::~Logger()
     impl_.finish();
     const LogStream::Buffer& buf(stream().buffer());
     //日志打印到标准输出
-    g_output(buf.data(), buf.length());
+    fwrite(buf.data(), 1, buf.length(), stdout);
+    logToFile(buf.data(),buf.length());
     //如果LogLevel==FATAL，flush后退出
     if (impl_.level_ == FATAL)
     {
-        g_flush();
+        fflush(stdout);
         abort();
     }
-}
-
-void Logger::setLogLevel(Logger::LogLevel level)
-{
-    g_logLevel = level;
-}
-
-void Logger::setOutput(OutputFunc out)
-{
-    g_output = out;
-}
-
-void Logger::setFlush(FlushFunc flush)
-{
-    g_flush = flush;
 }

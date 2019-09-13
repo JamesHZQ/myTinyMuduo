@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(echo)
 set(CMAKE_CXX_FLAGS "-g -Wall")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 INCLUDE_DIRECTORIES(../../myTinyMuduo)
 link_directories(../../myTinyMuduo/base)

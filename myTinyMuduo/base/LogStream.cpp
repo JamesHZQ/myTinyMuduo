@@ -199,16 +199,6 @@ const char* FixedBuffer<SIZE>::debugString()
     return data_;
 }
 
-template<int SIZE>
-void FixedBuffer<SIZE>::cookieStart()
-{
-}
-
-template<int SIZE>
-void FixedBuffer<SIZE>::cookieEnd()
-{
-}
-
 void LogStream::staticCheck()
 {
     static_assert(kMaxNumericSize - 10 > std::numeric_limits<double>::digits10,
