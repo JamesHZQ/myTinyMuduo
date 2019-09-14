@@ -26,35 +26,26 @@ namespace muduo{
     private:
         const char* str_;
     };
-    //让c-string可以像string那样使用
+    //避免以string&为形参类型时，传入超长的const char*
+    //产生大量复制的问题
     class StringPiece{
     private:
         const char* ptr_;       //字符串首地址
         int         length_;    //字符串长度
     public:
         //空串
-        StringPiece()
-            :ptr_(NULL),length_(0){}
+        StringPiece():ptr_(NULL),length_(0){}
         //c-string
-        StringPiece(const char* str)
-            :ptr_(str),length_(static_cast<int>(strlen(ptr_))){}
-        StringPiece(const unsigned char* str)
-            :ptr_(reinterpret_cast<const char*>(str)),
-            length_(static_cast<int>(strlen(ptr_))){}
+        StringPiece(const char* str):ptr_(str),length_(static_cast<int>(strlen(ptr_))){}
+        StringPiece(const char* str,int len):ptr_(str),length_(len){}
         //string
-        StringPiece(const std::string& str)
-            :ptr_(str.data()),length_(static_cast<int>(str.size())){}
-        //偏移地址和长度
-        StringPiece(const char* offset,int len)
-            :ptr_(offset),length_(len){}
-
+        StringPiece(const std::string& str):ptr_(str.data()),length_(static_cast<int>(str.size())){}
 
         const char* data()const{return ptr_;}
         int size()const {return length_;}
         bool empty()const{return length_==0;}
         const char* begin()const{return ptr_;}
         const char* end()const{return ptr_+length_;}
-
         void clear(){ptr_=NULL;length_=0;}
         void set(const char* buffer,int len){ptr_=buffer;length_=len;}
         void set(const char* str){
@@ -91,7 +82,7 @@ namespace muduo{
         STRINGPIECE_BINARY_PREDICATE(<=, <);
         STRINGPIECE_BINARY_PREDICATE(>=, >);
         STRINGPIECE_BINARY_PREDICATE(>,  >);
-#undef STRINGPIECE_BINARY_PREDICATE                           \
+#undef STRINGPIECE_BINARY_PREDICATE                       
 
         //strcmp
         int compare(const StringPiece& x)const{
@@ -115,11 +106,8 @@ namespace muduo{
         bool starts_with(const StringPiece& x)const {
             return ((length_>=x.length_)&&(memcmp(ptr_,x.ptr_,x.length_) == 0));
         }
-
-
     };
-//StringPiece对象写入输出流
-std::ostream& operator<<(std::ostream& o,const muduo::StringPiece* piece);
+
 }
 
 #endif //MY_TINYMUDUO_BASE_STRINGPIECE_H

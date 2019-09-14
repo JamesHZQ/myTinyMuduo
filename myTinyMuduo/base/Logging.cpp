@@ -85,9 +85,10 @@ void Logger::Impl::formatTime()
                            tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec);
         assert(len == 17); (void)len;
     }
-    Fmt us(".%06dZ ", microseconds);
-    assert(us.length() == 9);
-    stream_ << StringPiece(t_time, 17) << StringPiece(us.data(), 9);
+    char t_time_us[32];
+    int length_us = snprintf(t_time_us,sizeof(t_time_us),".%06dZ ",microseconds);
+    assert(length_us == 9);
+    stream_ << StringPiece(t_time, 17) << StringPiece(t_time_us, 9);
 }
 
 void Logger::Impl::finish()
@@ -96,21 +97,12 @@ void Logger::Impl::finish()
     stream_ << " - " << StringPiece(basename_.data_,basename_.size_) << ':' << line_ << '\n';
 }
 
-Logger::Logger(SourceFile file, int line, LogLevel level, const char* func)
-        : impl_(level, 0, file, line)
+Logger::Logger(SourceFile file, int line, LogLevel level, const char* func): impl_(level, 0, file, line)
 {
     impl_.stream_ << func << ' ';
 }
-
-Logger::Logger(SourceFile file, int line, LogLevel level)
-        : impl_(level, 0, file, line)
-{
-}
-
-Logger::Logger(SourceFile file, int line, bool toAbort)
-        : impl_(toAbort?FATAL:ERROR, errno, file, line)
-{
-}
+Logger::Logger(SourceFile file, int line, LogLevel level): impl_(level, 0, file, line){}
+Logger::Logger(SourceFile file, int line, bool toAbort): impl_(toAbort?FATAL:ERROR, errno, file, line){}
 
 Logger::~Logger()
 {

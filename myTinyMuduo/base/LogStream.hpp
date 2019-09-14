@@ -35,20 +35,12 @@ namespace muduo{
             }
             //返回字符串首地址
             const char* data()const{return data_;}
-            //返回已写入字符长度
             int length()const{return static_cast<int>(cur_-data_);}
-
-            //当前字符串写到那个字节
             char* current(){return cur_;}
-            //返回可用空间-1
             int avail()const{return static_cast<int>(end()-cur_);}
-
             void add(size_t len){cur_+=len;}
             void reset(){cur_=data_;}
-            //写入字符置零，但没有reset？
             void bzero(){memset(data_, 0, sizeof(data_));}
-            const char* debugString();
-
             //返回string或StringPiece
             std::string toString()const{return std::string(data_,length());}
             StringPiece toStringPiece()const{return StringPiece(data_,length());}
@@ -61,32 +53,31 @@ namespace muduo{
         };
     }
     class LogStream:noncopyable{
-        typedef LogStream self;
     public:
         typedef detail::FixedBuffer<detail::kSmallBuffer> Buffer;
-        self& operator<<(bool v){
+        LogStream& operator<<(bool v){
             buffer_.append(v?"1":"0",1);
             return *this;
         }
-        self& operator<<(short);
-        self& operator<<(unsigned short);
-        self& operator<<(int);
-        self& operator<<(unsigned int);
-        self& operator<<(long);
-        self& operator<<(unsigned long);
-        self& operator<<(long long);
-        self& operator<<(unsigned long long);
-        self& operator<<(const void*);
-        self& operator<<(float v){
+        LogStream& operator<<(short);
+        LogStream& operator<<(unsigned short);
+        LogStream& operator<<(int);
+        LogStream& operator<<(unsigned int);
+        LogStream& operator<<(long);
+        LogStream& operator<<(unsigned long);
+        LogStream& operator<<(long long);
+        LogStream& operator<<(unsigned long long);
+        LogStream& operator<<(const void*);
+        LogStream& operator<<(float v){
             *this<< static_cast<double>(v);
             return *this;
         }
-        self& operator<<(double);
-        self& operator<<(char v){
+        LogStream& operator<<(double);
+        LogStream& operator<<(char v){
             buffer_.append(&v,1);
             return *this;
         }
-        self& operator<<(const char* str){
+        LogStream& operator<<(const char* str){
             if(str){
                 buffer_.append(str,strlen(str));
             }else{
@@ -94,18 +85,18 @@ namespace muduo{
             }
             return *this;
         }
-        self&operator<<(const unsigned char* str){
+        LogStream&operator<<(const unsigned char* str){
             return operator<<(reinterpret_cast<const char*>(str));
         }
-        self&operator<<(const std::string& v){
+        LogStream&operator<<(const std::string& v){
             buffer_.append(v.c_str(),v.size());
             return *this;
         }
-        self&operator<<(const StringPiece& v){
+        LogStream&operator<<(const StringPiece& v){
             buffer_.append(v.data(),v.size());
             return *this;
         }
-        self&operator<<(const Buffer& v){
+        LogStream&operator<<(const Buffer& v){
             *this<<v.toStringPiece();
             return *this;
         }
@@ -117,32 +108,13 @@ namespace muduo{
 
 
     private:
-        void staticCheck();
         template <typename T>
         void formatInteger(T);
         //容量4000个字节
         Buffer buffer_;
         static const int kMaxNumericSize = 32;
     };
-    //数字转字符串
-    class Fmt{
-    public:
-        template<typename T>
-        Fmt(const char* fmt,T val);
 
-        const char* data()const{return buf_;}
-        int length()const{return length_;}
-    private:
-        char    buf_[32];
-        int     length_;
-    };
-    //将Fmt对象写到LogStream（添加到LogStream的buffer_）
-    inline LogStream& operator<<(LogStream&s,const Fmt&fmt){
-        s.append(fmt.data(),fmt.length());
-        return s;
-    }
-    std::string formatSI(int64_t n);
-    std::string formatIEC(int64_t n);
 }
 
 #endif //MY_TINYMUDUO_BASE_LOGSTREAM_H
