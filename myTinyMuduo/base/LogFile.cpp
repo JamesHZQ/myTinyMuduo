@@ -44,15 +44,8 @@ void LogFile::append_unlocked(const char* logline,int len){
         }
         else 
         {
-            if(count_>=flushEveryN_)
-            {
-               count_=0; 
-            }
-                
-            if(now-lastFlush_>flushInterval_)
-            {
-                lastFlush_ = now;
-            }
+            count_ = 0;
+            lastFlush_ = now;
             file_->flush(); 
         }
     }
@@ -66,6 +59,7 @@ bool LogFile::rollFile()
     {
         lastRoll_ = now;
         lastFlush_ = now;
+        count_ = 0;
         file_.reset(new AppendFile(filename));
         return true;
     }
